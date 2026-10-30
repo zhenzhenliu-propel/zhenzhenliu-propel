@@ -148,7 +148,8 @@ a:hover .roll__inner,button:hover .roll__inner{transform:translateY(-50%)}
 .t-line .dot{color:var(--ink)}
 .t-line .dot.g{color:#5fbf5a}
 .t-line b{color:var(--ink);font-weight:600}
-.t-sub{color:var(--mute);padding-left:1.6em}
+.t-sub{color:var(--mute);padding-left:3.2em;position:relative}
+.t-sub:first-of-type::before{content:"⎿";position:absolute;left:1.6em}
 .t-spin{color:var(--accent);margin-top:14px;min-height:1.7em}
 .t-spin small{color:var(--mute);font-size:1em}
 .replay{margin-top:22px;display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:99px;padding:12px 18px}
@@ -233,7 +234,7 @@ a:hover .roll__inner,button:hover .roll__inner{transform:translateY(-50%)}
   <div class="nav__clock mono" aria-live="off"></div>
   <nav class="nav__links mono">
     <a href="#builds" data-scroll class="roll-link">Work</a>
-    <a href="#process" data-scroll class="roll-link">Process</a>
+    <a href="#process" data-scroll class="roll-link">About</a>
     <a href="#contact" data-scroll class="roll-link">Contact</a>
   </nav>
 </header>
@@ -274,10 +275,10 @@ a:hover .roll__inner,button:hover .roll__inner{transform:translateY(-50%)}
   <section class="section" id="process">
     <div class="term-wrap">
       <div class="term-copy">
-        <div class="label mono" data-reveal><b>(02)</b><span>How this site was made</span></div>
-        <h2 data-reveal>One prompt, <em>then</em> pit stops.</h2>
-        <p data-reveal>This whole page was vibe-coded in a Claude Code session: study the reference, pick the motion libraries, write it, test it, ship it. Here's the replay.</p>
-        <button class="replay mono magnetic" data-cursor="Run"><span class="roll-link">Replay session</span> ↻</button>
+        <div class="label mono" data-reveal><b>(02)</b><span>Who's behind this</span></div>
+        <h2 data-reveal>From circuits <em>to</em> Claude.</h2>
+        <p data-reveal>An electronics engineer with a data science masters, who spent years building hardware and AI products before moving into teaching teams to work with Claude. Ask the terminal.</p>
+        <button class="replay mono magnetic" data-cursor="Run"><span class="roll-link">Ask again</span> ↻</button>
       </div>
       <div class="terminal" data-reveal>
         <div class="terminal__bar"><i></i><i></i><i></i><span>~/zhenzhen — claude</span></div>
@@ -347,7 +348,7 @@ const CONFIG = {
     { tag: "Agents", title: "Claude Skills & Agents", text: "Custom skills that turn repeat work into a single prompt.", art: "conic", year: "2026" },
     { tag: "Vibe coding", title: "Tools in an Afternoon", text: "Dashboards, maturity radars and internal apps, shipped the same day.", art: "dots", year: "2026" },
     { tag: "Ops", title: "Client Readiness Kits", text: "Pre-briefs, checklists and outcome reports that practically run themselves.", art: "bars", year: "2026" },
-    { tag: "This site", title: "This Very Page", text: "Built in one Claude Code session. Inspired by landonorris.com.", art: "glyph", year: "2026" },
+    { tag: "This site", title: "This Very Page", text: "Built in one Claude Code session — three.js, GSAP and Lenis.", art: "glyph", year: "2026" },
   ],
 };
 /* ───────────────────────────────────────────────────────────────────── */
@@ -676,15 +677,24 @@ ScrollTrigger.create({
   },
 });
 
-/* terminal — a replay of a Claude Code session */
+/* terminal — a Claude Code session that introduces Zhenzhen */
 const spinChars = ["·", "✢", "✳", "✶", "✻", "✽", "✻", "✶", "✳", "✢"];
 const script = [
-  { h: `<span class="dot">⏺</span> I'll study <b>landonorris.com</b> and the most-loved motion libraries on GitHub first.` },
-  { h: `<span class="dot g">⏺</span> <b>Fetch</b>(landonorris.com)`, sub: "⎿  WebGL canvases · split-text reveals · signature · pinned gallery" },
-  { h: `<span class="dot g">⏺</span> <b>Search</b>(github: awwwards motion stack)`, sub: "⎿  three.js · GSAP ScrollTrigger · Lenis smooth scroll" },
-  { h: `<span class="dot g">⏺</span> <b>Write</b>(index.html)`, sub: "⎿  18,000 particles · 3 shapes · scroll-driven morph" },
-  { h: `<span class="dot g">⏺</span> <b>Bash</b>(open index.html)`, sub: "⎿  60fps ✓  mobile ✓  reduced-motion ✓" },
-  { h: `<span class="dot">⏺</span> Shipped. Move your cursor through the particles — they'll get out of your way. <span class="accent">✳</span>` },
+  { h: `<span class="dot g">⏺</span> <b>Read</b>(education)`, sub: [
+    "Master of Data Science — Monash University · 2021–2023",
+    "B. Electrical, Electronics &amp; Comms Engineering — ANU · 2015–2018",
+  ] },
+  { h: `<span class="dot g">⏺</span> <b>Read</b>(certifications)`, sub: [
+    "Claude Certified Developer — Foundations · Anthropic · 2026",
+    "AWS Certified AI Practitioner · 2026",
+    "Claude Academy ×4 — Claude API · MCP Advanced · Enterprise rollout · AI capabilities &amp; limits",
+  ] },
+  { h: `<span class="dot g">⏺</span> <b>Read</b>(experience)`, sub: [
+    "AI Training Consultant — Propel Ventures · now",
+    "Technical Director — HZY AI Technology (NVIDIA Inception) · 2024–2026",
+    "Electronics &amp; IT Engineer — 7 years in Melbourne · 2019–2026",
+  ] },
+  { h: `<span class="dot">⏺</span> Hardware brain, data science training — now teaching teams to build with Claude. <span class="accent">✳</span>` },
 ];
 let termRun = 0;
 async function runTerminal() {
@@ -693,7 +703,7 @@ async function runTerminal() {
   const sleep = ms => new Promise(r => setTimeout(r, reduce ? 0 : ms));
   const typed = $(".t-typed"), out = $(".t-out"), spin = $(".t-spin");
   typed.textContent = ""; out.innerHTML = ""; spin.innerHTML = "";
-  const prompt = "build me a personal site that moves like an F1 car";
+  const prompt = "who is zhenzhen?";
   for (const ch of prompt) { if (!alive()) return; typed.textContent += ch; await sleep(28 + Math.random() * 40); }
   await sleep(400);
   let f = 0, secs = 0, tokens = 0;
@@ -707,7 +717,7 @@ async function runTerminal() {
     if (!alive()) { clearInterval(spinner); return; }
     const el = document.createElement("div");
     el.className = "t-line";
-    el.innerHTML = step.h + (step.sub ? `<div class="t-sub">${step.sub}</div>` : "");
+    el.innerHTML = step.h + (step.sub || []).map(s => `<div class="t-sub">${s}</div>`).join("");
     out.appendChild(el);
     gsap.fromTo(el, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" });
   }
