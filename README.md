@@ -19,7 +19,7 @@
 <div align="center">
 
 <a href="https://zhenzhenliu-propel.github.io/zhenzhenliu-propel/motion/">
-<img src="assets/motion.gif" width="320" alt="Zhenzhen Liu – particle animation preview" />
+<img src="assets/motion.gif" width="320" alt="Particle space animation preview" />
 </a>
 
 <sub>▶ <a href="https://zhenzhenliu-propel.github.io/zhenzhenliu-propel/motion/">Open the live version</a></sub>
