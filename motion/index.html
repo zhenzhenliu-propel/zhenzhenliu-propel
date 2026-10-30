@@ -2,254 +2,762 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Zhenzhen Liu – Orbit</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zhenzhen Liu — Building with Claude</title>
+<meta name="description" content="Zhenzhen Liu — AI enablement at Propel Ventures. Teaching teams to build, ship and think with Claude.">
+<meta property="og:title" content="Zhenzhen Liu — Building with Claude">
+<meta property="og:description" content="AI enablement, Claude agents & vibe-coded tools. An interactive site built with Claude Code.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://zhenzhenliu-propel.github.io/zhenzhenliu-propel/motion/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14130f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90' fill='%23d97757'%3E✳%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mona+Sans:wdth,wght@75..125,200..900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&family=Mrs+Saint+Delafield&display=swap" rel="stylesheet">
 <style>
-  html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:system-ui,sans-serif}
-  canvas{position:absolute;left:50%;top:50%;transform-origin:center}
-  #hint{position:fixed;left:16px;bottom:30px;font:500 13px system-ui;color:#778191;transition:opacity .3s;z-index:2}
-  #credits{position:fixed;left:16px;right:16px;bottom:10px;font:500 12px system-ui;color:#778191;z-index:2;transition:opacity .3s}
-  #credits a{color:#73deff}
-  body.clean #hint,body.clean #credits{opacity:0}
+:root{
+  --bg:#14130f; --bg-2:#1c1b16; --line:#2e2c25;
+  --ink:#f0eee6; --mute:#8f8b7e;
+  --accent:#d97757; --accent-2:#f2a97f; --lime:#d4f25a;
+  --sans:"Mona Sans", "Helvetica Neue", Arial, sans-serif;
+  --serif:"Instrument Serif", Georgia, serif;
+  --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+  --sig:"Mrs Saint Delafield", cursive;
+  --gutter:clamp(16px, 3vw, 40px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{font-family:var(--sans);background:var(--bg);overflow-x:hidden;cursor:none}
+@media (pointer:coarse){body{cursor:auto}}
+a{color:inherit;text-decoration:none;cursor:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:none}
+::selection{background:var(--accent);color:var(--bg)}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.accent{color:var(--accent)}
+
+/* grain */
+.grain{position:fixed;inset:-50%;width:200%;height:200%;pointer-events:none;z-index:90;opacity:.06;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain 1s steps(6) infinite}
+@keyframes grain{0%{transform:translate(0,0)}20%{transform:translate(-3%,2%)}40%{transform:translate(2%,-4%)}60%{transform:translate(-4%,-1%)}80%{transform:translate(3%,3%)}100%{transform:translate(0,0)}}
+
+/* webgl */
+#gl{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;pointer-events:none}
+main{position:relative;z-index:1}
+
+/* cursor */
+.cursor,.cursor-ring{position:fixed;top:0;left:0;pointer-events:none;z-index:100;border-radius:50%;mix-blend-mode:difference}
+.cursor{width:8px;height:8px;margin:-4px 0 0 -4px;background:var(--ink)}
+.cursor-ring{width:40px;height:40px;margin:-20px 0 0 -20px;border:1px solid var(--ink);display:grid;place-items:center;
+  transition:width .35s cubic-bezier(.2,.8,.2,1),height .35s cubic-bezier(.2,.8,.2,1),margin .35s cubic-bezier(.2,.8,.2,1),background .3s}
+.cursor-ring span{font:600 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--bg);opacity:0;transition:opacity .2s}
+.cursor-ring.is-hover{width:72px;height:72px;margin:-36px 0 0 -36px;background:var(--ink)}
+.cursor-ring.is-hover span{opacity:1}
+@media (pointer:coarse){.cursor,.cursor-ring{display:none}}
+
+/* loader */
+.loader{position:fixed;inset:0;z-index:95;background:var(--bg);display:flex;flex-direction:column;justify-content:space-between;padding:var(--gutter);clip-path:inset(0 0 0 0)}
+.loader__top{display:flex;justify-content:space-between;color:var(--mute)}
+.loader__count{font-weight:800;font-stretch:75%;font-size:clamp(120px,26vw,420px);line-height:.8;letter-spacing:-.04em}
+.loader__count sup{font-size:.25em;color:var(--accent);vertical-align:top;margin-left:.1em}
+.loader__bar{height:2px;background:var(--line);margin-top:24px;overflow:hidden}
+.loader__bar i{display:block;height:100%;width:100%;background:var(--accent);transform-origin:left;transform:scaleX(0)}
+
+/* nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:20px var(--gutter);mix-blend-mode:difference}
+.nav__logo{font-weight:800;font-stretch:75%;font-size:22px;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+.spark{display:inline-block;color:var(--accent);animation:spin 8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.nav__clock{color:var(--ink)}
+.nav__links{display:flex;gap:28px;justify-self:end}
+@media (max-width:720px){.nav__clock{display:none}.nav{grid-template-columns:1fr auto}.nav__links{gap:16px}}
+
+/* rolling text (Lando-style duplicate roll) */
+.roll{display:inline-block;overflow:hidden;height:1.2em;line-height:1.2em;vertical-align:top}
+.roll__inner{display:flex;flex-direction:column;transition:transform .55s cubic-bezier(.7,0,.2,1)}
+.roll__inner span{display:block}
+.roll__inner span:last-child{color:var(--accent)}
+a:hover .roll__inner,button:hover .roll__inner{transform:translateY(-50%)}
+
+/* split helpers */
+.line-mask{display:block;overflow:hidden;padding-bottom:.04em}
+.char{display:inline-block;will-change:transform}
+.word{display:inline-block;white-space:nowrap}
+
+/* hero */
+.hero{height:100vh;min-height:620px;position:relative;padding:0 var(--gutter);display:flex;flex-direction:column;justify-content:flex-end}
+.hero__meta{position:absolute;top:96px;left:var(--gutter);right:var(--gutter);display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.status{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:99px;padding:8px 14px;background:rgba(20,19,15,.5);backdrop-filter:blur(8px)}
+.status i{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 12px var(--lime);animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+.hero__role{text-align:right;color:var(--mute);line-height:1.6}
+.hero__role b{color:var(--ink);font-weight:400}
+.hero__title{font-weight:850;font-stretch:75%;text-transform:uppercase;letter-spacing:-.035em;line-height:.82;font-size:clamp(84px,17.5vw,330px);position:relative}
+.hero__title .line-mask:last-child{display:flex;align-items:flex-end;gap:.15em}
+.hero__sig{position:absolute;right:var(--gutter);bottom:clamp(110px,15vw,250px);width:clamp(220px,30vw,480px);transform:rotate(-8deg);pointer-events:none}
+.hero__sig text{font-family:var(--sig);font-size:150px;fill:transparent;stroke:var(--accent);stroke-width:1.4}
+.hero__foot{display:flex;justify-content:space-between;align-items:center;padding:22px 0 26px;border-top:1px solid var(--line);margin-top:18px;color:var(--mute)}
+.scroll-cue{display:flex;align-items:center;gap:10px}
+.scroll-cue i{display:block;width:1px;height:28px;background:var(--line);position:relative;overflow:hidden}
+.scroll-cue i::after{content:"";position:absolute;inset:0;background:var(--accent);animation:drip 1.8s cubic-bezier(.7,0,.2,1) infinite}
+@keyframes drip{0%{transform:translateY(-100%)}100%{transform:translateY(100%)}}
+
+/* manifesto */
+.section{position:relative;padding:clamp(100px,16vh,180px) var(--gutter)}
+.label{display:flex;gap:14px;align-items:center;color:var(--mute);margin-bottom:40px}
+.label b{color:var(--accent);font-weight:600}
+.manifesto__text{font-weight:700;font-stretch:80%;text-transform:uppercase;font-size:clamp(38px,7vw,118px);line-height:.95;letter-spacing:-.025em;max-width:16ch}
+.manifesto__text .hl{color:var(--accent)}
+.manifesto__row{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:80px;align-items:end}
+.quote{font-family:var(--serif);font-style:italic;font-size:clamp(28px,3.4vw,52px);line-height:1.05;max-width:18ch}
+.quote small{display:block;font:12px var(--mono);font-style:normal;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin-top:18px}
+.manifesto__body{color:var(--mute);font-size:17px;line-height:1.6;max-width:44ch;justify-self:end}
+@media (max-width:720px){.manifesto__row{grid-template-columns:1fr}.manifesto__body{justify-self:start}}
+
+/* marquee */
+.marquee{padding:30px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;background:rgba(20,19,15,.55);backdrop-filter:blur(6px)}
+.marquee__row{display:flex;white-space:nowrap;will-change:transform}
+.marquee__row span{font-weight:850;font-stretch:75%;text-transform:uppercase;font-size:clamp(56px,10vw,150px);line-height:1;letter-spacing:-.03em;padding-right:.35em;display:inline-flex;align-items:center;gap:.35em}
+.marquee__row span em{font-style:normal;color:var(--accent);display:inline-block;font-size:.7em}
+.marquee__row--b span{color:transparent;-webkit-text-stroke:1px var(--mute);font-family:var(--serif);font-weight:400;font-style:italic;text-transform:none;letter-spacing:0}
+.marquee__row--b span em{-webkit-text-stroke:0}
+
+/* terminal */
+.term-wrap{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(30px,5vw,80px);align-items:center}
+@media (max-width:900px){.term-wrap{grid-template-columns:1fr}}
+.term-copy h2{font-weight:850;font-stretch:75%;text-transform:uppercase;font-size:clamp(52px,7vw,120px);line-height:.85;letter-spacing:-.03em}
+.term-copy h2 em{font-family:var(--serif);font-weight:400;font-style:italic;text-transform:none;color:var(--accent);letter-spacing:0}
+.term-copy p{color:var(--mute);font-size:17px;line-height:1.6;margin-top:28px;max-width:40ch}
+.terminal{background:#0e0d0b;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 40px 120px -40px rgba(217,119,87,.35),0 0 0 1px rgba(255,255,255,.02) inset;font-family:var(--mono);font-size:clamp(12px,1.05vw,14px);line-height:1.7;transform-style:preserve-3d}
+.terminal__bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);color:var(--mute);font-size:12px}
+.terminal__bar i{width:11px;height:11px;border-radius:50%;background:#3a3830}
+.terminal__bar i:nth-child(1){background:#e5615a}.terminal__bar i:nth-child(2){background:#e0b341}.terminal__bar i:nth-child(3){background:#5fbf5a}
+.terminal__bar span{margin-left:auto}
+.terminal__body{padding:20px 22px 26px;min-height:390px;color:#d8d5ca}
+.t-welcome{border:1px solid var(--accent);border-radius:8px;padding:10px 14px;margin-bottom:18px;color:var(--ink);display:inline-block}
+.t-welcome b{color:var(--accent);font-weight:600}
+.t-welcome small{display:block;color:var(--mute);font-size:.9em}
+.t-prompt{border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-bottom:14px;color:var(--ink)}
+.t-prompt::before{content:"> ";color:var(--mute)}
+.caret{display:inline-block;width:.6em;height:1.1em;background:var(--ink);vertical-align:-.2em;margin-left:1px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.t-line{margin:4px 0;opacity:0}
+.t-line .dot{color:var(--ink)}
+.t-line .dot.g{color:#5fbf5a}
+.t-line b{color:var(--ink);font-weight:600}
+.t-sub{color:var(--mute);padding-left:1.6em}
+.t-spin{color:var(--accent);margin-top:14px;min-height:1.7em}
+.t-spin small{color:var(--mute);font-size:1em}
+.replay{margin-top:22px;display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:99px;padding:12px 18px}
+
+/* builds — horizontal pinned gallery */
+.builds{height:100vh;overflow:hidden;position:relative}
+.builds__track{display:flex;height:100%;align-items:center;gap:clamp(16px,2vw,28px);padding:0 var(--gutter);width:max-content;will-change:transform}
+.builds__intro{width:min(78vw,620px);flex-shrink:0;padding-right:4vw}
+.builds__intro h2{font-weight:850;font-stretch:75%;text-transform:uppercase;font-size:clamp(64px,9vw,160px);line-height:.82;letter-spacing:-.035em}
+.builds__intro h2 span{display:block;font-family:var(--serif);font-style:italic;font-weight:400;text-transform:none;color:var(--accent);letter-spacing:0;font-size:.62em;margin-top:.12em}
+.builds__intro p{color:var(--mute);margin-top:28px;font-size:17px;line-height:1.6;max-width:36ch}
+.card{width:clamp(270px,30vw,440px);height:min(68vh,580px);flex-shrink:0;border:1px solid var(--line);border-radius:18px;background:var(--bg-2);position:relative;overflow:hidden;display:flex;flex-direction:column;transform-style:preserve-3d;will-change:transform}
+.card__art{flex:1;position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.card__body{padding:22px 24px 26px}
+.card__top{display:flex;justify-content:space-between;color:var(--mute);margin-bottom:14px}
+.card h3{font-weight:800;font-stretch:80%;text-transform:uppercase;font-size:clamp(26px,2.4vw,36px);line-height:.95;letter-spacing:-.02em}
+.card p{color:var(--mute);margin-top:10px;font-size:15px;line-height:1.5}
+.card__glare{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at var(--gx,50%) var(--gy,50%),rgba(255,255,255,.09),transparent 45%);opacity:0;transition:opacity .3s}
+.card:hover .card__glare{opacity:1}
+.builds__progress{position:absolute;left:var(--gutter);right:var(--gutter);bottom:32px;height:1px;background:var(--line)}
+.builds__progress i{display:block;height:100%;background:var(--accent);transform-origin:left;transform:scaleX(0)}
+/* generative card art */
+.art-rings{background:repeating-radial-gradient(circle at 50% 60%,transparent 0 18px,rgba(217,119,87,.5) 19px 20px);animation:rings 6s linear infinite}
+@keyframes rings{to{background-position:0 0;transform:scale(1.25)}}
+.art-conic::before{content:"";position:absolute;inset:-40%;background:conic-gradient(from 0deg,var(--accent),transparent 8%,var(--accent-2) 16%,transparent 25%,var(--accent) 33%,transparent 41%,var(--accent-2) 50%,transparent 58%,var(--accent) 66%,transparent 75%,var(--accent-2) 83%,transparent 91%,var(--accent));animation:spin 14s linear infinite;filter:blur(1px);opacity:.75}
+.art-conic::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,transparent 0,var(--bg-2) 70%)}
+.art-dots{display:grid;grid-template-columns:repeat(10,1fr);gap:0;padding:22px;place-items:center}
+.art-dots i{width:8px;height:8px;border-radius:50%;background:var(--ink);animation:wave 2.4s ease-in-out infinite;opacity:.2}
+@keyframes wave{50%{transform:scale(1.8);opacity:1;background:var(--accent)}}
+.art-bars{display:flex;align-items:flex-end;gap:6px;padding:26px}
+.art-bars i{flex:1;background:linear-gradient(to top,var(--accent),var(--accent-2));border-radius:3px 3px 0 0;animation:eq 1.4s ease-in-out infinite alternate;transform-origin:bottom}
+@keyframes eq{from{transform:scaleY(.15)}to{transform:scaleY(1)}}
+.art-glyph{display:grid;place-items:center;font-size:clamp(150px,16vw,260px);color:var(--accent);line-height:1}
+.art-glyph span{display:block;animation:spin 10s linear infinite}
+.art-lines{background:repeating-linear-gradient(115deg,transparent 0 14px,rgba(212,242,90,.35) 15px 16px);animation:slide 3s linear infinite;background-size:200% 200%}
+@keyframes slide{to{background-position:100% 0}}
+
+/* contact */
+.contact{min-height:100vh;display:flex;flex-direction:column;justify-content:space-between;padding-top:clamp(100px,14vh,160px)}
+.contact__big{font-weight:850;font-stretch:75%;text-transform:uppercase;font-size:clamp(80px,min(17vw,26vh),300px);line-height:.8;letter-spacing:-.045em}
+.contact__big .line-mask:nth-child(2){color:var(--accent)}
+.contact__row{display:flex;flex-wrap:wrap;gap:14px;margin-top:56px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:12px;border:1px solid var(--ink);border-radius:99px;padding:18px 28px;font-size:15px;font-weight:600;letter-spacing:.01em;text-transform:uppercase;transition:background .3s,color .3s}
+.pill:hover{background:var(--ink);color:var(--bg)}
+.pill--solid{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.pill--solid:hover{background:var(--ink);border-color:var(--ink)}
+.contact__sig{width:min(380px,70vw);margin-left:auto}
+.contact__sig text{font-family:var(--sig);font-size:150px;fill:transparent;stroke:var(--accent);stroke-width:1.4}
+.footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;padding:28px 0 32px;border-top:1px solid var(--line);margin-top:60px;color:var(--mute)}
+.footer a:hover{color:var(--ink)}
+
+[data-reveal]{opacity:0;transform:translateY(40px)}
+@media (prefers-reduced-motion:reduce){.grain,.spark,.art-rings,.art-conic::before,.art-dots i,.art-bars i,.art-glyph span,.art-lines{animation:none!important}}
 </style>
-<script type="importmap">{"imports":{"three":"./assets/vendor/three.module.js","three/addons/":"./assets/vendor/jsm/"}}</script>
 </head>
 <body>
-<div id="hint">move the mouse to look around · H = hide this hint (for recording)</div>
-<div id="credits">Planet textures: <a href="https://www.solarsystemscope.com/textures/">Solar System Scope</a> (CC BY 4.0) · Saturn V &amp; ISS models: NASA (no endorsement implied) · Spaceman: Propel Ventures</div>
+<!--
+  Built with Claude Code.
+  Motion stack (all open source, all popular on GitHub):
+    - three.js            https://github.com/mrdoob/three.js          (WebGL particle morph)
+    - GSAP + ScrollTrigger https://github.com/greensock/GSAP           (timelines, scrubbed scroll, pinning)
+    - Lenis               https://github.com/darkroomengineering/lenis (smooth scroll)
+  Design cues borrowed from landonorris.com (OFF+BRAND): huge condensed type, duplicate-text roll links,
+  signature stroke, pinned horizontal "hall of fame" gallery, scroll-scrubbed manifesto.
+  Edit the CONFIG block in the script at the bottom to change your details.
+-->
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor" aria-hidden="true"></div>
+<div class="cursor-ring" aria-hidden="true"><span></span></div>
+
+<div class="loader" aria-hidden="true">
+  <div class="loader__top mono"><span>✳ Booting Claude</span><span class="loader__verb">Pondering…</span></div>
+  <div>
+    <div class="loader__count"><span>0</span><sup>%</sup></div>
+    <div class="loader__bar"><i></i></div>
+  </div>
+</div>
+
+<header class="nav">
+  <a href="#top" class="nav__logo" data-scroll><span class="spark">✳</span><span>ZL</span></a>
+  <div class="nav__clock mono" aria-live="off"></div>
+  <nav class="nav__links mono">
+    <a href="#builds" data-scroll class="roll-link">Work</a>
+    <a href="#process" data-scroll class="roll-link">Process</a>
+    <a href="#contact" data-scroll class="roll-link">Contact</a>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="hero__meta mono">
+      <div class="status" data-hero-fade><i></i><span>Currently building with Claude</span></div>
+      <div class="hero__role" data-hero-fade><b class="js-role"></b><br><span class="js-company"></span></div>
+    </div>
+    <svg class="hero__sig" viewBox="0 0 640 200" aria-hidden="true"><text x="10" y="150" class="js-sig"></text></svg>
+    <h1 class="hero__title" aria-label="Zhenzhen Liu">
+      <span class="line-mask js-split js-first"></span>
+      <span class="line-mask"><span class="js-split js-last"></span></span>
+    </h1>
+    <div class="hero__foot mono" data-hero-fade>
+      <span>AI Enablement · Agents · Vibe coding</span>
+      <span class="scroll-cue"><i></i>Scroll</span>
+    </div>
+  </section>
+
+  <section class="section manifesto" id="about">
+    <div class="label mono" data-reveal><b>(01)</b><span>Message from Zhenzhen</span></div>
+    <p class="manifesto__text js-words">
+      Turning AI from a clever demo into a <span class="hl">daily habit.</span> Teaching teams to build, ship and think with <span class="hl">Claude.</span>
+    </p>
+    <div class="manifesto__row">
+      <p class="quote" data-reveal>“The best prompt is the one you actually ship.”<small>— Notes to self, 2026</small></p>
+      <p class="manifesto__body" data-reveal>I run hands-on AI enablement programs for client teams — from the first “what can it do?” session to custom skills, agents and internal tools people use every day. Less slideware, more shipped work.</p>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__row marquee__row--a"></div>
+    <div class="marquee__row marquee__row--b"></div>
+  </div>
+
+  <section class="section" id="process">
+    <div class="term-wrap">
+      <div class="term-copy">
+        <div class="label mono" data-reveal><b>(02)</b><span>How this site was made</span></div>
+        <h2 data-reveal>One prompt, <em>then</em> pit stops.</h2>
+        <p data-reveal>This whole page was vibe-coded in a Claude Code session: study the reference, pick the motion libraries, write it, test it, ship it. Here's the replay.</p>
+        <button class="replay mono magnetic" data-cursor="Run"><span class="roll-link">Replay session</span> ↻</button>
+      </div>
+      <div class="terminal" data-reveal>
+        <div class="terminal__bar"><i></i><i></i><i></i><span>~/zhenzhen — claude</span></div>
+        <div class="terminal__body">
+          <div class="t-welcome"><b>✻</b> Welcome to <b>Claude Code</b><small>/help for help · cwd: ~/zhenzhen</small></div>
+          <div class="t-prompt"><span class="t-typed"></span><span class="caret"></span></div>
+          <div class="t-out"></div>
+          <div class="t-spin"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="builds" id="builds">
+    <div class="builds__track">
+      <div class="builds__intro">
+        <div class="label mono"><b>(03)</b><span>Selected work</span></div>
+        <h2>Hall of<br>builds<span>made with Claude</span></h2>
+        <p>Programs, agents and tools — each one started as a conversation.</p>
+      </div>
+    </div>
+    <div class="builds__progress"><i></i></div>
+  </section>
+
+  <section class="section contact" id="contact">
+    <div>
+      <div class="label mono" data-reveal><b>(04)</b><span>Say hello</span></div>
+      <h2 class="contact__big" aria-label="Let's build">
+        <span class="line-mask"><span class="js-split-scroll">Let's</span></span>
+        <span class="line-mask"><span class="js-split-scroll">build ✳</span></span>
+      </h2>
+      <div class="contact__row">
+        <a class="pill pill--solid magnetic js-linkedin" target="_blank" rel="noopener" data-cursor="Say hi"><span class="roll-link">LinkedIn</span> ↗</a>
+        <a class="pill magnetic js-github" target="_blank" rel="noopener" data-cursor="Code"><span class="roll-link">GitHub</span> ↗</a>
+        <svg class="contact__sig" viewBox="0 0 640 200" aria-hidden="true"><text x="10" y="150" class="js-sig"></text></svg>
+      </div>
+    </div>
+    <footer class="footer mono">
+      <span>© <span class="js-year"></span> <span class="js-name"></span></span>
+      <span>Built with Claude Code · three.js · GSAP · Lenis</span>
+      <a href="#top" data-scroll class="roll-link">Back to top ↑</a>
+    </footer>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script type="module">
-import * as THREE from 'three';
-import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
-import {EffectComposer} from 'three/addons/postprocessing/EffectComposer.js';
-import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
-import {UnrealBloomPass} from 'three/addons/postprocessing/UnrealBloomPass.js';
-import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
-import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 
-const W=1080,H=1350,P=24,TAU=Math.PI*2,A='assets/space/';
-const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
-renderer.setPixelRatio(1);renderer.setSize(W,H,false);
-renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
-document.body.appendChild(renderer.domElement);
-const cvs=renderer.domElement;cvs.style.width=W+'px';cvs.style.height=H+'px';
-function fit(){const s=Math.min(innerWidth/W,innerHeight/H);cvs.style.transform=`translate(-50%,-50%) scale(${s})`}
-addEventListener('resize',fit);fit();
+/* ───────────────────────── CONFIG — edit me ───────────────────────── */
+const CONFIG = {
+  first: "Zhenzhen",
+  last: "Liu",
+  signature: "Zhenzhen",
+  role: "AI Training Consultant",
+  company: "Propel Ventures",
+  city: "Melbourne",
+  timeZone: "Australia/Melbourne",
+  linkedin: "https://www.linkedin.com/",          // ← your LinkedIn profile URL
+  github: "https://github.com/zhenzhenliu-propel",
+  marquee: ["Prompt", "Build", "Ship", "Repeat"],
+  marqueeB: ["think with it", "build with it", "teach with it"],
+  builds: [
+    { tag: "Programs", title: "AI Enablement Programs", text: "Hands-on Claude training for client teams — from first prompt to daily workflow.", art: "rings", year: "2026" },
+    { tag: "Agents", title: "Claude Skills & Agents", text: "Custom skills that turn repeat work into a single prompt.", art: "conic", year: "2026" },
+    { tag: "Vibe coding", title: "Tools in an Afternoon", text: "Dashboards, maturity radars and internal apps, shipped the same day.", art: "dots", year: "2026" },
+    { tag: "Ops", title: "Client Readiness Kits", text: "Pre-briefs, checklists and outcome reports that practically run themselves.", art: "bars", year: "2026" },
+    { tag: "This site", title: "This Very Page", text: "Built in one Claude Code session. Inspired by landonorris.com.", art: "glyph", year: "2026" },
+  ],
+};
+/* ───────────────────────────────────────────────────────────────────── */
 
-const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(40,W/H,.1,3000);
+gsap.registerPlugin(ScrollTrigger);
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const touch = matchMedia("(pointer: coarse)").matches;
+history.scrollRestoration = "manual";
+window.scrollTo(0, 0);
 
-/* seeded random so every recorded frame is reproducible */
-let seed=4242;
-const rnd=()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
-const lerp=(a,b,u)=>a+(b-a)*u, smooth=u=>u*u*(3-2*u);
-const win=(t,a,b)=>{const u=(t-a)/(b-a);return u>=0&&u<=1?u:-1};
+/* ── content from config ── */
+$(".js-first").textContent = CONFIG.first;
+$(".js-last").textContent = CONFIG.last;
+$(".js-role").textContent = CONFIG.role;
+$(".js-company").textContent = CONFIG.company + " · " + CONFIG.city;
+$$(".js-sig").forEach(t => (t.textContent = CONFIG.signature));
+$(".js-linkedin").href = CONFIG.linkedin;
+$(".js-github").href = CONFIG.github;
+$(".js-year").textContent = new Date().getFullYear();
+$(".js-name").textContent = `${CONFIG.first} ${CONFIG.last}`;
 
-const texLoader=new THREE.TextureLoader();
-const tex=async(f,srgb=true)=>{const t=await texLoader.loadAsync(A+f);if(srgb)t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t};
-const draco=new DRACOLoader().setDecoderPath('assets/vendor/draco/');
-const glb=f=>new GLTFLoader().setDRACOLoader(draco).loadAsync(A+f);
-const img=src=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.src=src});
+const track = $(".builds__track");
+CONFIG.builds.forEach((b, i) => {
+  const card = document.createElement("article");
+  card.className = "card";
+  card.dataset.cursor = "View";
+  let art = "";
+  if (b.art === "dots") art = Array.from({ length: 60 }, (_, k) => `<i style="animation-delay:${((k % 10) + Math.floor(k / 10)) * 0.08}s"></i>`).join("");
+  if (b.art === "bars") art = Array.from({ length: 14 }, (_, k) => `<i style="animation-delay:${k * 0.09}s;height:${40 + ((k * 37) % 55)}%"></i>`).join("");
+  if (b.art === "glyph") art = "<span>✳</span>";
+  card.innerHTML = `
+    <div class="card__art art-${b.art}">${art}</div>
+    <div class="card__body">
+      <div class="card__top mono"><span>${String(i + 1).padStart(2, "0")} — ${b.tag}</span><span>${b.year}</span></div>
+      <h3>${b.title}</h3><p>${b.text}</p>
+    </div>
+    <div class="card__glare"></div>`;
+  track.appendChild(card);
+});
 
-/* soft radial sprite texture (sun glow, flares) */
-function glowTex(stops){const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
-  const g=x.createRadialGradient(128,128,0,128,128,128);stops.forEach(([o,col])=>g.addColorStop(o,col));x.fillStyle=g;x.fillRect(0,0,256,256);
-  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
+/* rolling link labels: duplicate text so it can roll on hover */
+$$(".roll-link").forEach(el => {
+  const t = el.textContent;
+  el.classList.add("roll");
+  el.innerHTML = `<span class="roll__inner"><span>${t}</span><span>${t}</span></span>`;
+});
 
-/* chroma-key the Propel spaceman off its flat navy background */
-function keyed(im){const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const x=c.getContext('2d');x.drawImage(im,0,0);
-  const d=x.getImageData(0,0,c.width,c.height),p=d.data,br=p[32],bg=p[33],bb=p[34];
-  for(let i=0;i<p.length;i+=4){const e=Math.abs(p[i]-br)+Math.abs(p[i+1]-bg)+Math.abs(p[i+2]-bb);p[i+3]=e<36?0:e<70?Math.round((e-36)/34*255):255}
-  x.putImageData(d,0,0);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
-
-const sunDir=new THREE.Vector3(-.75,.45,.42).normalize();   // sun upper-left, slightly in front: lit faces toward camera
-const objs={};
-
-async function build(){
-  const [milky,day,night,clouds,moonT,marsT,satT,ringT,iss,s5,sm1,sm3]=await Promise.all([
-    tex('2k_stars_milky_way.jpg'),tex('2k_earth_daymap.jpg'),tex('2k_earth_nightmap.jpg'),tex('2k_earth_clouds.jpg',false),
-    tex('2k_moon.jpg'),tex('2k_mars.jpg'),tex('2k_saturn.jpg'),tex('2k_saturn_ring_alpha.png'),
-    glb('iss.glb'),glb('saturn-v.glb'),img('assets/spaceman-01.png'),img('assets/spaceman-03.png')]);
-
-  /* sky + reflections */
-  milky.mapping=THREE.EquirectangularReflectionMapping;
-  const pm=new THREE.PMREMGenerator(renderer);scene.environment=pm.fromEquirectangular(milky).texture;
-  const sky=new THREE.Mesh(new THREE.SphereGeometry(1500,64,32),new THREE.MeshBasicMaterial({map:milky,side:THREE.BackSide,color:0x56607a}));
-  sky.rotation.set(.4,1.2,.3);scene.add(sky);
-  const sp=new Float32Array(3*2600),sc=new Float32Array(3*2600);
-  for(let i=0;i<2600;i++){const u=rnd()*2-1,a=rnd()*TAU,r=Math.sqrt(1-u*u);sp.set([Math.cos(a)*r*1200,u*1200,Math.sin(a)*r*1200],i*3);
-    const k=.5+rnd()*.9,b=rnd();sc.set(b<.15?[k,k*.9,k*.75]:b<.35?[k*.75,k*.9,k]:[k,k,k],i*3)}
-  const sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.BufferAttribute(sp,3));sg.setAttribute('color',new THREE.BufferAttribute(sc,3));
-  scene.add(new THREE.Points(sg,new THREE.PointsMaterial({size:1.6,sizeAttenuation:false,vertexColors:true})));
-
-  /* lights */
-  const sun=new THREE.DirectionalLight(0xfff3e0,3.4);sun.position.copy(sunDir).multiplyScalar(200);scene.add(sun);
-  const earthshine=new THREE.DirectionalLight(0x73deff,.45);earthshine.position.set(6,-40,18);scene.add(earthshine);
-  scene.add(new THREE.AmbientLight(0x10203c,.5));
-  const fill=new THREE.DirectionalLight(0xdfe8ff,.55);fill.position.set(6,4,40);scene.add(fill);
-  const sunPos=new THREE.Vector3(-62,74,-200);                  // flare placed in frame for the cinematic glow
-  const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex([[0,'rgba(255,255,255,1)'],[.08,'rgba(255,248,230,1)'],[.22,'rgba(255,214,150,.45)'],[.5,'rgba(115,222,255,.08)'],[1,'rgba(0,0,0,0)']]),blending:THREE.AdditiveBlending,depthWrite:false,color:new THREE.Color(2,2,2)}));
-  glow.position.copy(sunPos);glow.scale.setScalar(70);scene.add(glow);
-
-  /* Earth: day/night shader + clouds + atmosphere */
-  const earth=new THREE.Group();earth.position.set(5,-50,-36);earth.rotation.set(.32,0,.38);scene.add(earth);
-  const R=40;
-  const eMat=new THREE.ShaderMaterial({uniforms:{day:{value:day},night:{value:night},sunDir:{value:sunDir}},
-    vertexShader:`varying vec2 vUv;varying vec3 vN;varying vec3 vW;
-      void main(){vUv=uv;vN=normalize(mat3(modelMatrix)*normal);vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
-    fragmentShader:`uniform sampler2D day,night;uniform vec3 sunDir;varying vec2 vUv;varying vec3 vN;varying vec3 vW;
-      void main(){vec3 n=normalize(vN),V=normalize(cameraPosition-vW);float l=dot(n,sunDir);
-        vec3 d=texture2D(day,vUv).rgb,ni=texture2D(night,vUv).rgb;
-        float dayF=smoothstep(-.1,.2,l);
-        vec3 col=d*max(l,0.)*1.75;
-        col+=ni*vec3(1.,.78,.5)*2.4*(1.-dayF);
-        float ocean=smoothstep(.0,.08,d.b-d.r)*(1.-smoothstep(.2,.4,dot(d,vec3(.333))));
-        vec3 h=normalize(sunDir+V);col+=vec3(1.,.93,.8)*pow(max(dot(n,h),0.),70.)*ocean*1.6*dayF;
-        float fr=pow(1.-max(dot(n,V),0.),2.6);col+=vec3(.42,.84,1.)*fr*(.04+.65*clamp(l+.3,0.,1.));
-        gl_FragColor=vec4(col,1.);
-        #include <tonemapping_fragment>
-        #include <colorspace_fragment>
-      }`});
-  const ball=new THREE.Mesh(new THREE.SphereGeometry(R,160,120),eMat);earth.add(ball);
-  const cl=new THREE.Mesh(new THREE.SphereGeometry(R*1.012,160,120),new THREE.MeshStandardMaterial({color:0xffffff,alphaMap:clouds,transparent:true,depthWrite:false,roughness:1,metalness:0}));
-  earth.add(cl);
-  const atm=new THREE.Mesh(new THREE.SphereGeometry(R*1.035,128,96),new THREE.ShaderMaterial({uniforms:{sunDir:{value:sunDir}},
-    vertexShader:`varying vec3 vN;varying vec3 vW;void main(){vN=normalize(mat3(modelMatrix)*normal);vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
-    fragmentShader:`uniform vec3 sunDir;varying vec3 vN;varying vec3 vW;
-      void main(){vec3 n=normalize(vN),V=normalize(cameraPosition-vW);float rim=pow(clamp(1.-abs(dot(n,V)),0.,1.),7.);
-        float lit=clamp(dot(n,sunDir)+.35,0.,1.);gl_FragColor=vec4(vec3(.42,.84,1.)*rim*lit*1.5,1.);
-        #include <tonemapping_fragment>
-        #include <colorspace_fragment>
-      }`,side:THREE.BackSide,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false}));
-  earth.add(atm);
-  objs.earth={ball,cl};
-
-  /* distant worlds */
-  const planet=(t,r,pos)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(r,64,48),new THREE.MeshStandardMaterial({map:t,roughness:1,metalness:0}));m.position.set(...pos);scene.add(m);return m};
-  objs.moon=planet(moonT,3.2,[-17,10,-120]);objs.mars=planet(marsT,2.6,[-32,-8,-190]);
-  const saturn=new THREE.Group();saturn.position.set(30,38,-210);scene.add(saturn);
-  saturn.add(new THREE.Mesh(new THREE.SphereGeometry(13,64,48),new THREE.MeshStandardMaterial({map:satT,roughness:1})));
-  const rg=new THREE.RingGeometry(16.3,30,160,1),uv=rg.attributes.uv,pos=rg.attributes.position;
-  for(let i=0;i<pos.count;i++){const r=Math.hypot(pos.getX(i),pos.getY(i));uv.setXY(i,(r-16.3)/13.7,.5)}
-  const ring=new THREE.Mesh(rg,new THREE.MeshBasicMaterial({map:ringT,transparent:true,side:THREE.DoubleSide,depthWrite:false,color:0xc9c0ae}));
-  ring.rotation.x=-Math.PI/2+.42;saturn.add(ring);saturn.rotation.set(.15,0,.32);objs.saturn=saturn;
-
-  /* Saturn V (NASA) */
-  const rocket=new THREE.Group(),inner=s5.scene;
-  const bb=new THREE.Box3().setFromObject(inner),ctr=bb.getCenter(new THREE.Vector3());inner.position.sub(ctr);rocket.add(inner);
-  inner.traverse(o=>{if(o.isMesh){o.material.roughness=.55;o.material.metalness=.12;o.material.envMapIntensity=.4}});
-  rocket.scale.setScalar(1.15);scene.add(rocket);objs.rocket=rocket;objs.rocketHalf=(bb.max.y-bb.min.y)/2*1.15;
-
-  /* ISS (NASA) – untextured, so give it real-looking metal + gold solar arrays */
-  const st=new THREE.Group(),im=iss.scene;
-  im.traverse(o=>{if(!o.isMesh)return;const b=new THREE.Box3().setFromObject(o);if(b.min.y>30){o.visible=false;return}
-    const solar=/aniso|apollo/i.test(o.material.name);
-    o.material=solar?new THREE.MeshStandardMaterial({color:0x6e5632,metalness:.45,roughness:.5,envMapIntensity:.35})
-                    :new THREE.MeshStandardMaterial({color:0xd4d8df,metalness:.4,roughness:.5,envMapIntensity:.4})});
-  const ib=new THREE.Box3();im.traverse(o=>{if(o.isMesh&&o.visible)ib.expandByObject(o)});im.position.sub(ib.getCenter(new THREE.Vector3()));
-  st.add(im);st.scale.setScalar(.3);scene.add(st);objs.iss=st;
-
-  /* gold-foil satellite (built in code) */
-  const sat=new THREE.Group();
-  const noise=document.createElement('canvas');noise.width=noise.height=256;{const x=noise.getContext('2d');for(let i=0;i<2600;i++){x.fillStyle=`rgba(255,255,255,${rnd()*.5})`;x.fillRect(rnd()*256,rnd()*256,2+rnd()*10,1+rnd()*4)}}
-  const bump=new THREE.CanvasTexture(noise);
-  const foil=new THREE.MeshStandardMaterial({color:0xc8952e,metalness:.85,roughness:.42,bumpMap:bump,bumpScale:.6,envMapIntensity:.5});
-  sat.add(new THREE.Mesh(new THREE.CylinderGeometry(.9,.9,3.2,32),foil));
-  const cap=new THREE.Mesh(new THREE.CylinderGeometry(.92,.92,.3,32),new THREE.MeshStandardMaterial({color:0xcfd5dd,metalness:.8,roughness:.3}));cap.position.y=1.7;sat.add(cap);
-  const cells=document.createElement('canvas');cells.width=512;cells.height=192;{const x=cells.getContext('2d');x.fillStyle='#0b1f45';x.fillRect(0,0,512,192);
-    for(let i=0;i<16;i++)for(let j=0;j<6;j++){x.fillStyle=`hsl(${210+rnd()*12},70%,${22+rnd()*8}%)`;x.fillRect(i*32+2,j*32+2,28,28)}}
-  const ct=new THREE.CanvasTexture(cells);ct.colorSpace=THREE.SRGBColorSpace;
-  const panelM=new THREE.MeshStandardMaterial({map:ct,metalness:.5,roughness:.25,envMapIntensity:1});
-  for(const s of[-1,1]){const p=new THREE.Mesh(new THREE.BoxGeometry(5,.05,1.9),panelM);p.position.x=s*3.6;sat.add(p);
-    const arm=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,1.2,8),cap.material);arm.rotation.z=Math.PI/2;arm.position.x=s*1.2;sat.add(arm)}
-  const dish=new THREE.Mesh(new THREE.SphereGeometry(1,32,16,0,TAU,0,.9),new THREE.MeshStandardMaterial({color:0xf2f4f7,metalness:.2,roughness:.4,side:THREE.DoubleSide}));
-  dish.position.y=-2.2;dish.rotation.x=Math.PI;sat.add(dish);
-  scene.add(sat);objs.sat=sat;
-
-  /* Propel spacemen – stylised accent */
-  const man=(t,s)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(s,s),new THREE.MeshBasicMaterial({map:t,transparent:true,depthWrite:false,color:0xe6ecf5}));scene.add(m);return m};
-  objs.man1=man(keyed(sm1),7.5);objs.man2=man(keyed(sm3),6);
-
-  /* engine plume: flame (additive) + exhaust (soft) */
-  const plume=(n,additive)=>{const g=new THREE.BufferGeometry();
-    g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(n*3),3));g.setAttribute('aCol',new THREE.BufferAttribute(new Float32Array(n*4),4));g.setAttribute('aSize',new THREE.BufferAttribute(new Float32Array(n),1));
-    const m=new THREE.ShaderMaterial({vertexShader:`attribute vec4 aCol;attribute float aSize;varying vec4 vC;
-      void main(){vC=aCol;vec4 mv=modelViewMatrix*vec4(position,1.);gl_PointSize=aSize*(1855./-mv.z);gl_Position=projectionMatrix*mv;}`,
-      fragmentShader:`varying vec4 vC;void main(){float r=length(gl_PointCoord-.5);float a=smoothstep(.5,0.,r);a*=a;if(vC.a*a<.004)discard;gl_FragColor=vec4(vC.rgb,vC.a*a);
-        #include <tonemapping_fragment>
-        #include <colorspace_fragment>
-      }`,transparent:true,depthWrite:false,blending:additive?THREE.AdditiveBlending:THREE.NormalBlending});
-    const p=new THREE.Points(g,m);p.frustumCulled=false;scene.add(p);
-    const seeds=[];for(let i=0;i<n;i++)seeds.push({ph:rnd(),life:additive?.18+rnd()*.3:1.2+rnd()*1.6,sp:additive?10+rnd()*8:4+rnd()*4,dx:rnd()-.5,dy:rnd()-.5,dz:rnd()-.5,s:rnd()});
-    return{p,g,seeds,n,additive}};
-  objs.flame=plume(1400,true);objs.smoke=plume(700,false);
-
-  /* grade: vignette + fine grain */
-  composer.addPass(new RenderPass(scene,camera));
-  composer.addPass(new UnrealBloomPass(new THREE.Vector2(W,H),.75,.55,.92));
-  grade=new ShaderPass({uniforms:{tDiffuse:{value:null},time:{value:0}},
-    vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-    fragmentShader:`uniform sampler2D tDiffuse;uniform float time;varying vec2 vUv;
-      float h(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233))+time)*43758.5453);}
-      void main(){vec4 c=texture2D(tDiffuse,vUv);vec2 q=vUv-.5;q.x*=.8;float v=smoothstep(.85,.25,length(q));
-        c.rgb*=mix(.55,1.,v);c.rgb+=(h(vUv*1000.)-.5)*.018;gl_FragColor=c;}`});
-  composer.addPass(grade);composer.addPass(new OutputPass());
+/* split helpers */
+function splitChars(el) {
+  const text = el.textContent;
+  el.innerHTML = [...text].map(c => (c === " " ? " " : `<span class="char">${c}</span>`)).join("");
+  return $$(".char", el);
 }
-const composer=new EffectComposer(renderer);composer.setPixelRatio(1);composer.setSize(W,H);let grade;
+function splitWords(el) {
+  const walk = node => {
+    [...node.childNodes].forEach(n => {
+      if (n.nodeType === 3) {
+        const frag = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach(w => {
+          if (!w) return;
+          if (/^\s+$/.test(w)) frag.append(" ");
+          else { const s = document.createElement("span"); s.className = "word"; s.textContent = w; frag.append(s); }
+        });
+        n.replaceWith(frag);
+      } else walk(n);
+    });
+  };
+  walk(el);
+  return $$(".word", el);
+}
 
-/* ---------- choreography: everything is a pure function of t, so the loop is seamless ---------- */
-const Y=new THREE.Vector3(0,1,0),tmp=new THREE.Vector3(),q=new THREE.Quaternion(),qr=new THREE.Quaternion();
-const R0=new THREE.Vector3(9,-30,-2),R1=new THREE.Vector3(-12,36,-6),RW=[.2,8.4];
-const rocketAt=(t,out)=>{const u=win(t,...RW);if(u<0)return false;const e=u*u*.45+u*.55;out.lerpVectors(R0,R1,e);return true};
-const rDir=R1.clone().sub(R0).normalize();
-let mx=0,my=0;
-function update(t){
-  const o=objs,w=TAU/P;
-  camera.position.set(Math.sin(t*w)*1.4+mx*1.5,1.2+Math.cos(t*w)*.7-my*1,32);camera.lookAt(mx*1.2,3,0);
-  o.earth.ball.rotation.y=t*w;o.earth.cl.rotation.y=t*w*1+Math.sin(t*w)*.05;
-  o.moon.rotation.y=t*w;o.mars.rotation.y=t*w;o.saturn.rotation.y=Math.sin(t*w)*.05;
+/* ── marquee content ── */
+const star = `<em>✳</em>`;
+const fill = (row, words) => {
+  const chunk = words.map(w => `<span>${w}${star}</span>`).join("");
+  row.innerHTML = chunk.repeat(4);
+};
+fill($(".marquee__row--a"), CONFIG.marquee);
+fill($(".marquee__row--b"), CONFIG.marqueeB);
 
-  /* Saturn V climbing out of the atmosphere */
-  const rk=o.rocket;rk.visible=rocketAt(t,rk.position);
-  q.setFromUnitVectors(Y,rDir);qr.setFromAxisAngle(Y,t*.35);rk.quaternion.copy(q).multiply(qr);
-  for(const pl of[o.flame,o.smoke]){
-    const P_=pl.g.attributes.position.array,C=pl.g.attributes.aCol.array,S=pl.g.attributes.aSize.array;
-    for(let i=0;i<pl.n;i++){const s=pl.seeds[i],a=((t/s.life+s.ph)%1)*s.life,f=a/s.life,born=t-a;
-      if(!rocketAt(born,tmp)){C[i*4+3]=0;continue}
-      tmp.addScaledVector(rDir,-o.rocketHalf-.2);
-      const spread=pl.additive?.35+a*1.6:.8+a*2.4;
-      P_[i*3]=tmp.x-rDir.x*s.sp*a+s.dx*spread;P_[i*3+1]=tmp.y-rDir.y*s.sp*a+s.dy*spread;P_[i*3+2]=tmp.z-rDir.z*s.sp*a+s.dz*spread;
-      if(pl.additive){const k=f<.15?[1.5,1.4,1.2]:f<.4?[1.3,.75,.3]:f<.7?[.9,.33,.09]:[.35,.1,.04];
-        C.set([k[0],k[1],k[2],(1-f)*(.18+s.s*.22)],i*4);S[i]=(.35+f*1.3)*(.7+s.s*.6)}
-      else{const g_=.32+s.s*.18;C.set([g_,g_*1.04,g_*1.12,(f<.1?f*10:1)*(1-f)*(1-f)*.07],i*4);S[i]=(1.2+f*4.5)*(.7+s.s*.6)}
-    }
-    pl.g.attributes.position.needsUpdate=pl.g.attributes.aCol.needsUpdate=pl.g.attributes.aSize.needsUpdate=true;
+/* ── clock ── */
+const clock = $(".nav__clock");
+const fmt = new Intl.DateTimeFormat("en-AU", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false, timeZone: CONFIG.timeZone });
+const tickClock = () => (clock.textContent = `${CONFIG.city} ${fmt.format(new Date())}`);
+tickClock(); setInterval(tickClock, 1000);
+
+/* ── smooth scroll (Lenis) wired into GSAP ── */
+const lenis = new Lenis({ lerp: reduce ? 1 : 0.09, smoothWheel: !reduce });
+lenis.on("scroll", ScrollTrigger.update);
+gsap.ticker.add(t => lenis.raf(t * 1000));
+gsap.ticker.lagSmoothing(0);
+lenis.stop();
+$$("[data-scroll]").forEach(a => a.addEventListener("click", e => {
+  e.preventDefault();
+  const id = a.getAttribute("href");
+  lenis.scrollTo(id === "#top" ? 0 : id, { duration: 1.6 });
+}));
+
+/* ── cursor + magnetic buttons ── */
+const pointer = { x: innerWidth / 2, y: innerHeight / 2, nx: 0, ny: 0, active: false };
+if (!touch) {
+  const dot = $(".cursor"), ring = $(".cursor-ring"), label = $(".cursor-ring span");
+  const dx = gsap.quickTo(dot, "x", { duration: 0.1 }), dy = gsap.quickTo(dot, "y", { duration: 0.1 });
+  const rx = gsap.quickTo(ring, "x", { duration: 0.45, ease: "power3" }), ry = gsap.quickTo(ring, "y", { duration: 0.45, ease: "power3" });
+  addEventListener("pointermove", e => { dx(e.clientX); dy(e.clientY); rx(e.clientX); ry(e.clientY); });
+  document.addEventListener("pointerover", e => {
+    const t = e.target.closest("a,button,[data-cursor]");
+    ring.classList.toggle("is-hover", !!t);
+    label.textContent = t?.dataset.cursor || "";
+  });
+  $$(".magnetic").forEach(el => {
+    el.addEventListener("pointermove", e => {
+      const r = el.getBoundingClientRect();
+      gsap.to(el, { x: (e.clientX - r.left - r.width / 2) * 0.35, y: (e.clientY - r.top - r.height / 2) * 0.35, duration: 0.4, ease: "power3" });
+    });
+    el.addEventListener("pointerleave", () => gsap.to(el, { x: 0, y: 0, duration: 0.9, ease: "elastic.out(1,0.35)" }));
+  });
+}
+addEventListener("pointermove", e => {
+  pointer.x = e.clientX; pointer.y = e.clientY; pointer.active = true;
+  pointer.nx = (e.clientX / innerWidth) * 2 - 1;
+  pointer.ny = -(e.clientY / innerHeight) * 2 + 1;
+});
+document.addEventListener("pointerleave", () => (pointer.active = false));
+
+/* ───────────────── WebGL: 3-shape particle morph ─────────────────
+   Shape A: a 12-ray spark   (hero / contact)
+   Shape B: a sphere         (manifesto / process)
+   Shape C: an infinity loop (builds: prompt → build → ship → repeat)
+   Morph is driven by scroll position; particles flee the cursor. */
+const canvas = $("#gl");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true, powerPreference: "high-performance" });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, 0.1, 100);
+
+const N = touch || innerWidth < 768 ? 9000 : 18000;
+const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 1.5;
+const A = new Float32Array(N * 3), B = new Float32Array(N * 3), C = new Float32Array(N * 3), R = new Float32Array(N);
+const RAYS = 12;
+const rayLen = Array.from({ length: RAYS }, (_, i) => 1.45 + (i % 3 === 0 ? 0.35 : 0) + Math.random() * 0.2);
+const rayTwist = Array.from({ length: RAYS }, () => (Math.random() - 0.5) * 0.12);
+for (let i = 0; i < N; i++) {
+  R[i] = Math.random();
+  // A — spark
+  let x, y, z;
+  if (Math.random() < 0.1) {
+    const a = Math.random() * Math.PI * 2, r = Math.sqrt(Math.random()) * 0.22;
+    x = Math.cos(a) * r; y = Math.sin(a) * r; z = gauss() * 0.05;
+  } else {
+    const k = i % RAYS, L = rayLen[k];
+    const ang = (k / RAYS) * Math.PI * 2 + rayTwist[k];
+    const r = 0.12 + Math.pow(Math.random(), 0.8) * L;
+    const w = Math.pow(Math.max(0, 1 - r / L), 1.4) * 0.24 + 0.012;
+    const perp = gauss() * w;
+    x = Math.cos(ang) * r - Math.sin(ang) * perp;
+    y = Math.sin(ang) * r + Math.cos(ang) * perp;
+    z = gauss() * 0.06;
   }
+  A.set([x, y, z], i * 3);
+  // B — fibonacci sphere with a soft inner core
+  const phi = Math.acos(1 - (2 * (i + 0.5)) / N), th = Math.PI * (1 + Math.sqrt(5)) * i;
+  const rs = Math.random() < 0.85 ? 1.45 + gauss() * 0.03 : Math.random() * 1.2;
+  B.set([rs * Math.sin(phi) * Math.cos(th), rs * Math.cos(phi), rs * Math.sin(phi) * Math.sin(th)], i * 3);
+  // C — lemniscate (infinity) tube
+  const t = Math.random() * Math.PI * 2, den = 1 + Math.sin(t) ** 2, s = 2.3;
+  const tube = 0.16 * Math.sqrt(Math.random()), ta = Math.random() * Math.PI * 2;
+  C.set([(s * Math.cos(t)) / den + Math.cos(ta) * tube * 0.6, (s * Math.sin(t) * Math.cos(t)) / den + Math.sin(ta) * tube, Math.cos(ta) * tube + gauss() * 0.04], i * 3);
+}
+const geo = new THREE.BufferGeometry();
+geo.setAttribute("position", new THREE.BufferAttribute(A, 3));
+geo.setAttribute("aB", new THREE.BufferAttribute(B, 3));
+geo.setAttribute("aC", new THREE.BufferAttribute(C, 3));
+geo.setAttribute("aRand", new THREE.BufferAttribute(R, 1));
 
-  /* ISS gliding over the limb */
-  let u=win(t,8.6,21.5);o.iss.visible=u>=0;
-  if(u>=0){o.iss.position.set(lerp(17,-17,u),lerp(1,7,u)+Math.sin(u*TAU)*.5,lerp(-6,-10,u));o.iss.rotation.set(.38,.55+u*1.3,.18)}
-  /* satellite tumbling across the top */
-  u=win(t,13,23.6);o.sat.visible=u>=0;
-  if(u>=0){o.sat.position.set(lerp(-16,15,u),lerp(15,9,u)+Math.sin(u*TAU*1.5)*.7,lerp(4,-1,u));o.sat.rotation.set(u*2.4,u*3.4,.4+u*.8)}
-  /* Propel spacemen drifting through */
-  u=win(t,7.6,16.4);o.man1.visible=u>=0;
-  if(u>=0){o.man1.position.set(lerp(-15,15,u),lerp(-4,11,u)+Math.sin(u*TAU)*1,lerp(8,4,u));o.man1.quaternion.copy(camera.quaternion);o.man1.rotateZ(-.4+u*2.6)}
-  u=win(t,16.6,23.9);o.man2.visible=u>=0;
-  if(u>=0){o.man2.position.set(lerp(15,-15,u),lerp(-6,5,u)+Math.sin(u*TAU)*.8,lerp(8,5,u));o.man2.quaternion.copy(camera.quaternion);o.man2.rotateZ(.3-u*3.2)}
-  grade.uniforms.time.value=(t*37.13)%100;
+const uniforms = {
+  uTime: { value: 0 }, uMorph: { value: 0 }, uIntro: { value: 0 }, uAlpha: { value: 1 },
+  uSize: { value: touch ? 26 : 20 }, uPixelRatio: { value: renderer.getPixelRatio() },
+  uMouse: { value: new THREE.Vector3(9, 9, 0) }, uMouseStrength: { value: 0 },
+  uColA: { value: new THREE.Color("#d97757") }, uColB: { value: new THREE.Color("#f0eee6") },
+};
+const mat = new THREE.ShaderMaterial({
+  uniforms, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  vertexShader: /* glsl */ `
+    uniform float uTime, uMorph, uIntro, uSize, uPixelRatio, uMouseStrength;
+    uniform vec3 uMouse;
+    attribute vec3 aB; attribute vec3 aC; attribute float aRand;
+    varying float vRand; varying float vHeat;
+    vec3 rotZ(vec3 p, float a){ float c=cos(a), s=sin(a); return vec3(c*p.x - s*p.y, s*p.x + c*p.y, p.z); }
+    vec3 rotY(vec3 p, float a){ float c=cos(a), s=sin(a); return vec3(c*p.x + s*p.z, p.y, -s*p.x + c*p.z); }
+    float ease(float x){ return x*x*(3.0 - 2.0*x); }
+    float seg(float m){ return ease(clamp(m*1.4 - aRand*0.4, 0.0, 1.0)); }
+    void main(){
+      vec3 a = rotZ(position, uTime*0.05);
+      vec3 b = rotY(rotZ(aB, 0.3), uTime*0.18);
+      vec3 c = rotY(aC, sin(uTime*0.3)*0.35);
+      float m = uMorph;
+      vec3 p;
+      if (m < 1.0)      p = mix(a, b, seg(m));
+      else if (m < 2.0) p = mix(b, c, seg(m - 1.0));
+      else              p = mix(c, a, seg(m - 2.0));
+      // breathing drift
+      float t = uTime*0.7 + aRand*6.2831;
+      p += vec3(sin(t + p.y*2.0), cos(t*1.13 + p.x*2.0), sin(t*0.87 + p.z*2.0)) * 0.028;
+      // intro: burst from the centre
+      p *= mix(0.0, 1.0, clamp(uIntro*1.3 - aRand*0.3, 0.0, 1.0));
+      // cursor repulsion
+      vec2 d = p.xy - uMouse.xy;
+      float f = (1.0 - smoothstep(0.0, 0.95, length(d))) * uMouseStrength;
+      p.xy += normalize(d + 1e-4) * f * 0.5;
+      p.z  += f * 0.8;
+      vec4 mv = modelViewMatrix * vec4(p, 1.0);
+      gl_Position = projectionMatrix * mv;
+      gl_PointSize = uSize * uPixelRatio * (0.5 + aRand*0.9) / -mv.z;
+      vRand = aRand; vHeat = f;
+    }`,
+  fragmentShader: /* glsl */ `
+    uniform vec3 uColA, uColB; uniform float uAlpha;
+    varying float vRand; varying float vHeat;
+    void main(){
+      float d = length(gl_PointCoord - 0.5);
+      float a = pow(1.0 - smoothstep(0.0, 0.5, d), 1.8);
+      vec3 col = mix(uColA, uColB, step(0.78, vRand));
+      col = mix(col, vec3(0.83, 0.95, 0.35), vHeat*0.7);
+      gl_FragColor = vec4(col, a * uAlpha * (0.45 + vRand*0.55));
+    }`,
+});
+scene.add(new THREE.Points(geo, mat));
+
+function resize() {
+  const aspect = innerWidth / innerHeight;
+  camera.aspect = aspect;
+  camera.position.z = 7 * Math.max(1, 1.15 / aspect);
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight, false);
+}
+resize();
+addEventListener("resize", resize);
+
+const state = { morph: 0, alpha: 1, mouse: new THREE.Vector2(9, 9) };
+const marks = ["#about", "#builds", "#contact"].map(s => $(s));
+const clamp01 = v => Math.min(1, Math.max(0, v));
+const clock3 = new THREE.Clock();
+gsap.ticker.add(() => {
+  const vh = innerHeight;
+  const p = marks.map(el => clamp01((vh - el.getBoundingClientRect().top) / vh));
+  const target = p[0] + p[1] + p[2];
+  state.morph += (target - state.morph) * 0.06;
+  const targetAlpha = 1 - 0.3 * p[0] + 0.35 * p[1] + 0.1 * p[2];
+  state.alpha += (targetAlpha - state.alpha) * 0.08;
+  // mouse to world at z=0
+  const halfH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z;
+  const mx = pointer.nx * halfH * camera.aspect, my = pointer.ny * halfH;
+  state.mouse.x += (mx - state.mouse.x) * 0.15;
+  state.mouse.y += (my - state.mouse.y) * 0.15;
+  uniforms.uMouse.value.set(state.mouse.x, state.mouse.y, 0);
+  uniforms.uMouseStrength.value += ((pointer.active ? 1 : 0) - uniforms.uMouseStrength.value) * 0.05;
+  uniforms.uTime.value = clock3.getElapsedTime() * (reduce ? 0.3 : 1);
+  uniforms.uMorph.value = state.morph;
+  uniforms.uAlpha.value = state.alpha;
+  renderer.render(scene, camera);
+});
+
+/* ───────────────── loader → hero intro ───────────────── */
+const firstChars = splitChars($(".js-first"));
+const lastChars = splitChars($(".js-last"));
+gsap.set([...firstChars, ...lastChars], { yPercent: 110 });
+gsap.set("[data-hero-fade]", { opacity: 0, y: 20 });
+const sigTexts = $$(".js-sig");
+sigTexts.forEach(t => gsap.set(t, { strokeDasharray: 2200, strokeDashoffset: 2200 }));
+
+const verbs = ["Pondering…", "Vibing…", "Reticulating…", "Shipping…"];
+const count = { v: 0 };
+const loader = gsap.timeline();
+loader
+  .to(count, {
+    v: 100, duration: reduce ? 0.3 : 2.1, ease: "power2.inOut",
+    onUpdate() {
+      $(".loader__count span").textContent = Math.round(count.v);
+      $(".loader__verb").textContent = verbs[Math.min(3, Math.floor(count.v / 26))];
+    },
+  })
+  .to(".loader__bar i", { scaleX: 1, duration: reduce ? 0.3 : 2.1, ease: "power2.inOut" }, 0)
+  .to(".loader", { clipPath: "inset(0 0 100% 0)", duration: 1.1, ease: "expo.inOut" })
+  .set(".loader", { display: "none" })
+  .to(uniforms.uIntro, { value: 1, duration: 2.4, ease: "expo.out" }, "-=0.7")
+  .to(firstChars, { yPercent: 0, duration: 1.2, stagger: 0.05, ease: "expo.out" }, "<0.1")
+  .to(lastChars, { yPercent: 0, duration: 1.2, stagger: 0.06, ease: "expo.out" }, "<0.15")
+  .to("[data-hero-fade]", { opacity: 1, y: 0, duration: 1, stagger: 0.1, ease: "power3.out" }, "<0.3")
+  .to(sigTexts[0], { strokeDashoffset: 0, duration: 2.4, ease: "power2.inOut" }, "<")
+  .to(sigTexts[0], { fill: "#d97757", duration: 0.8 }, "-=0.4")
+  .add(() => lenis.start());
+
+/* hero parallax out */
+gsap.to(".hero__title", { yPercent: -30, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
+gsap.to(".hero__sig", { yPercent: -120, rotate: -14, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
+
+/* generic reveals */
+$$("[data-reveal]").forEach(el =>
+  gsap.to(el, { opacity: 1, y: 0, duration: 1.1, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 88%" } })
+);
+
+/* manifesto — word-by-word scrub */
+const words = splitWords($(".js-words"));
+gsap.fromTo(words, { opacity: 0.12 }, {
+  opacity: 1, stagger: 0.06, ease: "none",
+  scrollTrigger: { trigger: ".js-words", start: "top 80%", end: "bottom 40%", scrub: true },
+});
+
+/* marquee — infinite loop whose speed & skew react to scroll velocity */
+const loops = [
+  gsap.to(".marquee__row--a", { xPercent: -25, duration: 14, ease: "none", repeat: -1 }),
+  gsap.fromTo(".marquee__row--b", { xPercent: -25 }, { xPercent: 0, duration: 18, ease: "none", repeat: -1 }),
+];
+const skew = gsap.quickTo(".marquee__row", "skewX", { duration: 0.4, ease: "power3" });
+ScrollTrigger.create({
+  trigger: ".marquee", start: "top bottom", end: "bottom top",
+  onUpdate(self) {
+    const v = self.getVelocity();
+    const dir = self.direction;
+    skew(gsap.utils.clamp(-12, 12, v / -180));
+    loops.forEach(l => gsap.to(l, { timeScale: dir * (1 + Math.min(Math.abs(v) / 400, 5)), duration: 0.2, overwrite: true }));
+    gsap.delayedCall(0.25, () => loops.forEach(l => gsap.to(l, { timeScale: dir, duration: 1, overwrite: true })));
+  },
+});
+
+/* terminal — a replay of a Claude Code session */
+const spinChars = ["·", "✢", "✳", "✶", "✻", "✽", "✻", "✶", "✳", "✢"];
+const script = [
+  { h: `<span class="dot">⏺</span> I'll study <b>landonorris.com</b> and the most-loved motion libraries on GitHub first.` },
+  { h: `<span class="dot g">⏺</span> <b>Fetch</b>(landonorris.com)`, sub: "⎿  WebGL canvases · split-text reveals · signature · pinned gallery" },
+  { h: `<span class="dot g">⏺</span> <b>Search</b>(github: awwwards motion stack)`, sub: "⎿  three.js · GSAP ScrollTrigger · Lenis smooth scroll" },
+  { h: `<span class="dot g">⏺</span> <b>Write</b>(index.html)`, sub: "⎿  18,000 particles · 3 shapes · scroll-driven morph" },
+  { h: `<span class="dot g">⏺</span> <b>Bash</b>(open index.html)`, sub: "⎿  60fps ✓  mobile ✓  reduced-motion ✓" },
+  { h: `<span class="dot">⏺</span> Shipped. Move your cursor through the particles — they'll get out of your way. <span class="accent">✳</span>` },
+];
+let termRun = 0;
+async function runTerminal() {
+  const id = ++termRun;
+  const alive = () => id === termRun;
+  const sleep = ms => new Promise(r => setTimeout(r, reduce ? 0 : ms));
+  const typed = $(".t-typed"), out = $(".t-out"), spin = $(".t-spin");
+  typed.textContent = ""; out.innerHTML = ""; spin.innerHTML = "";
+  const prompt = "build me a personal site that moves like an F1 car";
+  for (const ch of prompt) { if (!alive()) return; typed.textContent += ch; await sleep(28 + Math.random() * 40); }
+  await sleep(400);
+  let f = 0, secs = 0, tokens = 0;
+  const spinner = setInterval(() => {
+    f++; if (f % 10 === 0) secs++;
+    tokens += 37;
+    spin.innerHTML = `${spinChars[f % spinChars.length]} ${verbs[Math.floor(f / 18) % verbs.length]} <small>(${secs}s · ↓ ${(tokens / 1000).toFixed(1)}k tokens · esc to interrupt)</small>`;
+  }, 100);
+  for (const step of script) {
+    await sleep(700 + Math.random() * 500);
+    if (!alive()) { clearInterval(spinner); return; }
+    const el = document.createElement("div");
+    el.className = "t-line";
+    el.innerHTML = step.h + (step.sub ? `<div class="t-sub">${step.sub}</div>` : "");
+    out.appendChild(el);
+    gsap.fromTo(el, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" });
+  }
+  clearInterval(spinner);
+  if (alive()) spin.innerHTML = `<span style="color:var(--lime)">✓</span> <small>Done in ${secs}s</small>`;
+}
+ScrollTrigger.create({ trigger: ".terminal", start: "top 75%", once: true, onEnter: runTerminal });
+$(".replay").addEventListener("click", runTerminal);
+
+/* terminal 3D tilt */
+if (!touch) {
+  const term = $(".terminal");
+  term.addEventListener("pointermove", e => {
+    const r = term.getBoundingClientRect();
+    gsap.to(term, { rotateY: ((e.clientX - r.left) / r.width - 0.5) * 8, rotateX: -((e.clientY - r.top) / r.height - 0.5) * 8, transformPerspective: 1200, duration: 0.6, ease: "power3" });
+  });
+  term.addEventListener("pointerleave", () => gsap.to(term, { rotateX: 0, rotateY: 0, duration: 1, ease: "elastic.out(1,0.4)" }));
 }
 
-/* ---------- run ---------- */
-window.renderAt=t=>{update(((t%P)+P)%P);composer.render()};
-window.period=()=>P;
-addEventListener('keydown',e=>{if(e.key==='h'||e.key==='H')document.body.classList.toggle('clean')});
-addEventListener('pointermove',e=>{mx=(e.clientX/innerWidth-.5);my=(e.clientY/innerHeight-.5)});
-build().then(()=>{
-  window.ready=true;
-  if(!location.search.includes('manual')){const t0=performance.now();const loop=()=>{renderAt((performance.now()-t0)/1000);requestAnimationFrame(loop)};loop()}
-  else renderAt(0);
-}).catch(e=>{console.error(e);window.err=String(e.stack||e)});
+/* builds — pinned horizontal scroll ("hall of fame") */
+const dist = () => track.scrollWidth - innerWidth;
+gsap.to(track, {
+  x: () => -dist(), ease: "none",
+  scrollTrigger: {
+    trigger: ".builds", start: "top top", end: () => "+=" + dist(), pin: true, scrub: 1, invalidateOnRefresh: true,
+    onUpdate: s => gsap.set(".builds__progress i", { scaleX: s.progress }),
+  },
+});
+$$(".card").forEach(card => {
+  if (touch) return;
+  card.addEventListener("pointermove", e => {
+    const r = card.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+    card.style.setProperty("--gx", px * 100 + "%");
+    card.style.setProperty("--gy", py * 100 + "%");
+    gsap.to(card, { rotateY: (px - 0.5) * 14, rotateX: -(py - 0.5) * 14, transformPerspective: 900, scale: 1.02, duration: 0.5, ease: "power3" });
+  });
+  card.addEventListener("pointerleave", () => gsap.to(card, { rotateX: 0, rotateY: 0, scale: 1, duration: 0.9, ease: "elastic.out(1,0.45)" }));
+});
+
+/* contact — giant type rises, signature draws */
+$$(".js-split-scroll").forEach(el => {
+  const chars = splitChars(el);
+  gsap.from(chars, { yPercent: 110, rotate: 6, duration: 1.1, stagger: 0.04, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 90%" } });
+});
+gsap.timeline({ scrollTrigger: { trigger: ".contact__sig", start: "top 90%" } })
+  .to(sigTexts[1], { strokeDashoffset: 0, duration: 2.4, ease: "power2.inOut" })
+  .to(sigTexts[1], { fill: "#d97757", duration: 0.8 }, "-=0.4");
+
+document.fonts.ready.then(() => ScrollTrigger.refresh());
 </script>
 </body>
 </html>
