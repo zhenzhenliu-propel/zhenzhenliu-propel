@@ -19,10 +19,12 @@
 <div align="center">
 
 <a href="https://zhenzhenliu-propel.github.io/zhenzhenliu-propel/motion/">
-<img src="assets/motion.gif" width="320" alt="Particle space animation preview" />
+<img src="assets/motion.gif" width="320" alt="3D space animation preview: Earth, Saturn, a Saturn V launch, the ISS and Propel spacemen" />
 </a>
 
 <sub>▶ <a href="https://zhenzhenliu-propel.github.io/zhenzhenliu-propel/motion/">Open the live version</a></sub>
+
+<sub><sub>Planet textures: <a href="https://www.solarsystemscope.com/textures/">Solar System Scope</a> (CC BY 4.0) · Saturn V &amp; ISS models: NASA (no endorsement implied) · Built with <a href="https://threejs.org/">Three.js</a></sub></sub>
 
 </div>
 
