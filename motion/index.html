@@ -3,229 +3,207 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Zhenzhen Liu – LinkedIn Motion</title>
+<title>Zhenzhen Liu – Particle Motion</title>
 <style>
   @font-face{font-family:'Bangers';src:url(assets/Bangers-Regular.ttf)}
-
-  /* Propel palette */
-  :root{
-    --navy:#00164c; --hero:#73deff; --ice:#c0f3ff; --blue:#0057a5; --white:#fff;
-    --display:'Bangers','Apercu',system-ui,sans-serif;
-    --body:'Apercu',ui-sans-serif,system-ui,sans-serif;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%;background:#0a0f1f;overflow:hidden;font-family:var(--body)}
-
-  /* 1080x1350 = LinkedIn 4:5 portrait. Centred + scaled to fit window by JS. */
-  #stage{position:absolute;left:50%;top:50%;width:1080px;height:1350px;background:var(--navy);overflow:hidden;
-    transform-origin:center;cursor:pointer}
-  .scene{position:absolute;inset:0;visibility:hidden;clip-path:inset(0 0 100% 0)}
-  .scene.on{visibility:visible;animation:reveal .65s cubic-bezier(.77,0,.18,1) forwards}
-  @keyframes reveal{to{clip-path:inset(0 0 0 0)}}
-  .hero{background:var(--hero);color:var(--navy)}
-  .ice{background:var(--ice);color:var(--navy)}
-  .dark{background:var(--navy);color:var(--white)}
-
-  .tag{position:absolute;font:700 26px var(--body);letter-spacing:.14em;text-transform:uppercase}
-  .tl{top:56px;left:64px}.tr{top:56px;right:64px}.bl{bottom:80px;left:64px}.br{bottom:80px;right:64px}
-  .fade{opacity:0}.on .fade{animation:fadeup .6s ease forwards;animation-delay:var(--d,0s)}
-  @keyframes fadeup{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
-
-  /* ---------- scene 1: name slam ---------- */
-  .name{position:absolute;left:52px;top:140px;font:400 400px/.82 var(--display);text-transform:uppercase;letter-spacing:.01em}
-  .name div{overflow:hidden;white-space:nowrap;padding-right:20px}
-  .name span{display:inline-block;transform:translateY(115%) skewY(8deg)}
-  .on .name span{animation:slam .7s cubic-bezier(.2,1.2,.3,1) forwards;animation-delay:calc(.45s + var(--i)*.14s)}
-  @keyframes slam{60%{transform:translateY(-4%) skewY(0)}to{transform:translateY(0) skewY(0)}}
-  .name .out{-webkit-text-stroke:5px var(--navy);color:transparent}
-  .stamp{position:absolute;right:56px;bottom:150px;width:220px;height:220px;border-radius:50%;background:var(--navy);color:var(--hero);
-    display:grid;place-items:center;text-align:center;font:400 72px/1 var(--display);letter-spacing:.04em;transform:scale(0) rotate(-40deg)}
-  .on .stamp{animation:pop .6s cubic-bezier(.2,1.5,.4,1) 1.6s forwards}
-  .stamp b{display:block;font:700 20px var(--body);letter-spacing:.2em;margin-top:2px;color:var(--white)}
-  @keyframes pop{to{transform:scale(1) rotate(-12deg)}}
-  .logo{position:absolute;height:64px;left:64px;bottom:76px}
-
-  /* ---------- scene 2: marquee bands ---------- */
-  .band{position:absolute;left:-10%;width:130%;overflow:hidden;white-space:nowrap;padding:18px 0}
-  .band .track{display:inline-block;font:400 150px/1 var(--display);text-transform:uppercase;letter-spacing:.02em;animation:run 12s linear infinite}
-  .band.rev .track{animation-direction:reverse}
-  @keyframes run{to{transform:translateX(-50%)}}
-  .b1{top:170px;background:var(--hero);color:var(--navy);transform:rotate(-7deg) translateX(-120%)}
-  .b2{top:1000px;background:var(--white);color:var(--navy);transform:rotate(5deg) translateX(120%)}
-  .b3{top:1110px;color:transparent;-webkit-text-stroke:3px var(--hero);transform:rotate(5deg) translateX(-120%)}
-  .on .b1{animation:bandL .8s cubic-bezier(.2,.9,.2,1) .35s forwards}
-  .on .b2{animation:bandR .8s cubic-bezier(.2,.9,.2,1) .55s forwards}
-  .on .b3{animation:bandL5 .8s cubic-bezier(.2,.9,.2,1) .75s forwards}
-  @keyframes bandL{to{transform:rotate(-7deg) translateX(0)}}
-  @keyframes bandR{to{transform:rotate(5deg) translateX(0)}}
-  @keyframes bandL5{to{transform:rotate(5deg) translateX(0)}}
-  .statement{position:absolute;left:64px;right:64px;top:430px;font:400 160px/.95 var(--display);text-transform:uppercase;letter-spacing:.01em}
-  .statement .w{display:inline-block;opacity:0;transform:translateY(60px) scale(.9)}
-  .on .statement .w{animation:wordin .45s cubic-bezier(.2,1.3,.4,1) forwards;animation-delay:calc(.9s + var(--i)*.11s)}
-  @keyframes wordin{to{opacity:1;transform:none}}
-  .statement .hl{color:var(--hero)}
-
-  /* ---------- scene 3: cards ---------- */
-  .grid{position:absolute;left:64px;right:64px;top:190px;bottom:190px;display:grid;grid-template-columns:1fr 1fr;gap:28px}
-  .card{background:var(--navy);color:var(--hero);border-radius:4px;padding:36px;display:flex;flex-direction:column;justify-content:space-between;
-    transform:scale(0) rotate(calc(var(--r)*3))}
-  .card:nth-child(2),.card:nth-child(3){background:var(--white);color:var(--navy)}
-  .card:nth-child(3){background:var(--hero)}
-  .on .card{animation:cardpop .6s cubic-bezier(.2,1.4,.4,1) forwards;animation-delay:calc(.45s + var(--i)*.16s)}
-  @keyframes cardpop{to{transform:scale(1) rotate(var(--r))}}
-  .card .n{font:700 28px var(--body);letter-spacing:.14em;opacity:.8}
-  .card h3{font:400 140px/.9 var(--display);text-transform:uppercase;letter-spacing:.01em}
-  .card p{font:500 32px/1.15 var(--body);margin-top:6px}
-
-  /* ---------- scene 4: outro ---------- */
-  .big{position:absolute;left:0;right:0;top:90px;text-align:center;font:400 270px/.86 var(--display);text-transform:uppercase;letter-spacing:.01em}
-  .big div{overflow:hidden;padding:0 10px}
-  .big span{display:inline-block;transform:translateY(115%)}
-  .big .h span{color:var(--hero)}
-  .on .big span{animation:slam .7s cubic-bezier(.2,1.2,.3,1) forwards;animation-delay:calc(.8s + var(--i)*.15s)}
-  .astro{position:absolute;left:50%;top:590px;width:420px;height:420px;margin-left:-210px;opacity:0}
-  .on .astro{animation:astro 1s cubic-bezier(.2,.9,.2,1) 1.2s forwards, bob 4s ease-in-out 2.2s infinite}
-  @keyframes astro{from{opacity:0;transform:translateY(60px) rotate(-8deg)}to{opacity:1;transform:none}}
-  @keyframes bob{50%{transform:translateY(-14px) rotate(2deg)}}
-  .who{position:absolute;left:0;right:0;top:1015px;text-align:center}
-  .who h4{font:400 84px/1 var(--display);text-transform:uppercase;letter-spacing:.03em}
-  .who p{font:700 26px var(--body);letter-spacing:.16em;text-transform:uppercase;margin-top:10px;color:var(--hero)}
-  .cta{position:absolute;left:50%;bottom:76px;transform:translateX(-50%);background:var(--hero);color:var(--navy);padding:18px 38px;border-radius:2px;
-    font:700 26px var(--body);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
-  .on .cta.fade{animation-name:fadeupc}
-  @keyframes fadeupc{from{opacity:0;transform:translate(-50%,24px)}to{opacity:1;transform:translate(-50%,0)}}
-
-  /* ---------- chrome ---------- */
-  #progress{position:absolute;left:64px;right:64px;bottom:40px;display:flex;gap:10px;z-index:99;mix-blend-mode:difference}
-  #progress i{flex:1;height:6px;background:rgba(255,255,255,.28);border-radius:3px;overflow:hidden}
-  #progress i b{display:block;height:100%;width:0;background:#fff}
-  #hint{position:fixed;left:16px;bottom:12px;font:500 13px var(--body);color:#778191;z-index:10;transition:opacity .3s}
+  html,body{margin:0;height:100%;background:#00091f;overflow:hidden;font-family:system-ui,sans-serif}
+  #c{position:absolute;left:50%;top:50%;width:1080px;height:1350px;transform-origin:center;cursor:crosshair}
+  #hint{position:fixed;left:16px;bottom:12px;font:500 13px system-ui;color:#778191;transition:opacity .3s;z-index:2}
   body.clean #hint{opacity:0}
-  @media (prefers-reduced-motion:reduce){ .band .track{animation-duration:40s} }
 </style>
 </head>
 <body>
-<div id="hint">click = replay · space = pause · ←/→ = scenes · H = hide this hint (for recording)</div>
-
-<div id="stage">
-
-  <!-- 1 · NAME -->
-  <section class="scene hero" data-ms="3600">
-    <div class="tag tl fade" style="--d:.2s" data-k="tl1"></div>
-    <div class="tag tr fade" style="--d:.3s" data-k="tr1"></div>
-    <div class="name">
-      <div><span style="--i:0" data-k="n1"></span></div>
-      <div><span style="--i:1" data-k="n2"></span></div>
-      <div><span class="out" style="--i:2" data-k="n3"></span></div>
-    </div>
-    <div class="stamp"><div><span data-k="stamp1"></span><b data-k="stamp2"></b></div></div>
-    <img class="logo fade" style="--d:1.9s" src="assets/logo-dark-blue-tight.png" alt="Propel Ventures">
-  </section>
-
-  <!-- 2 · BANDS + STATEMENT -->
-  <section class="scene dark" data-ms="3800">
-    <div class="band b1"><div class="track" data-k="band1" data-repeat="2"></div></div>
-    <div class="statement" data-k="statement"></div>
-    <div class="band b2 rev"><div class="track" data-k="band2" data-repeat="2"></div></div>
-    <div class="band b3"><div class="track" data-k="band3" data-repeat="2"></div></div>
-  </section>
-
-  <!-- 3 · CARDS -->
-  <section class="scene ice" data-ms="3800">
-    <div class="tag tl" data-k="tl3"></div>
-    <div class="tag tr" data-k="tr3"></div>
-    <div class="grid" data-k="cards"></div>
-  </section>
-
-  <!-- 4 · OUTRO -->
-  <section class="scene dark" data-ms="4400">
-    <div class="big">
-      <div><span style="--i:0" data-k="o1"></span></div>
-      <div class="h"><span style="--i:1" data-k="o2"></span></div>
-    </div>
-    <img class="astro" src="assets/spaceman-03.png" alt="">
-    <div class="who fade" style="--d:1.7s"><h4 data-k="fullname"></h4><p data-k="role"></p></div>
-    <div class="cta fade" style="--d:2.1s" data-k="cta"></div>
-  </section>
-
-  <div id="progress"></div>
-</div>
-
+<canvas id="c" width="1080" height="1350"></canvas>
+<div id="hint">move the mouse to push the particles · click = restart · H = hide this hint (for recording)</div>
 <script>
 /* ================= EDIT YOUR COPY HERE ================= */
 const COPY = {
-  tl1:"AI Enablement", tr1:"Melbourne · 2026",
-  n1:"Zhen", n2:"Zhen", n3:"Liu",
-  stamp1:"AI", stamp2:"ENABLER",
-  band1:"AI Enablement ✦ Prompt ✦ Build ✦ Ship ✦ Teach ✦ ",
-  band2:"Zhenzhen Liu ✦ Propel Ventures ✦ ",
-  band3:"Learn it ✦ Use it ✦ Share it ✦ ",
-  statement:[["I",0],["help",0],["teams",1],["work",0],["with",0],["AI.",1]],  // [word, highlight?]
-  tl3:"How I work", tr3:"4 moves",
-  cards:[
-    ["01","Prompt","Say it clearly."],
-    ["02","Build","Make it real."],
-    ["03","Ship","Put it live."],
-    ["04","Teach","Bring the team."]
-  ],
-  o1:"Let's", o2:"Build.",
-  fullname:"Zhenzhen Liu", role:"AI Enablement · Propel Ventures",
-  cta:"Follow for more →"
+  topLeft:"AI ENABLEMENT", topRight:"MELBOURNE · 2026",
+  marquee:"ZHENZHEN LIU ✦ AI ENABLEMENT ✦ PROPEL VENTURES ✦ PROMPT ✦ BUILD ✦ SHIP ✦ TEACH ✦ ",
+  name:["ZHEN","ZHEN","LIU"], role:["AI","ENABLER"],
+  words:["PROMPT","BUILD","SHIP","TEACH"],
+  closer:["LET'S","BUILD."], signoff:{main:"ZHENZHEN LIU", sub:"PROPEL VENTURES"}
 };
 /* ======================================================== */
 
-const $=(s,r=document)=>[...r.querySelectorAll(s)];
-$('[data-k]').forEach(el=>{
-  const k=el.dataset.k, v=COPY[k]; if(v==null) return;
-  if(k==='statement'){
-    el.innerHTML=v.map(([w,h],i)=>`<span class="w ${h?'hl':''}" style="--i:${i}">${w}</span>`).join(' ');
-  }else if(k==='cards'){
-    el.innerHTML=v.map(([n,h,p],i)=>{
-      const r=[-3,2.5,2,-2.5][i];
-      return `<div class="card" style="--i:${i};--r:${r}deg"><div class="n">${n}</div><div><h3>${h}</h3><p>${p}</p></div></div>`;
-    }).join('');
-  }else el.textContent=el.dataset.repeat?v.repeat(+el.dataset.repeat*2):v;
-});
-
-const stage=document.getElementById('stage');
-function fit(){const s=Math.min(innerWidth/1080,innerHeight/1350);stage.style.transform=`translate(-50%,-50%) scale(${s})`}
+const W=1080,H=1350,CX=W/2,CY=H/2,F=900,N=18000;
+const NAVY='#00164c', HERO='#73deff', ICE='#c0f3ff', BLUE='#0057a5', WHITE='#ffffff';
+const cv=document.getElementById('c'), g=cv.getContext('2d');
+function fit(){const s=Math.min(innerWidth/W,innerHeight/H);cv.style.transform=`translate(-50%,-50%) scale(${s})`}
 addEventListener('resize',fit);fit();
 
-const scenes=$('.scene'), prog=document.getElementById('progress');
-scenes.forEach(()=>prog.insertAdjacentHTML('beforeend','<i><b></b></i>'));
-const bars=$('b',prog);
+/* seeded RNG so every run (and every recorded frame) is identical */
+let seed=20260101;
+function rnd(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=rnd()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 
-let cur=-1,timer,z=1,paused=false,startT=0,elapsed=0;
-function play(i){
-  clearTimeout(timer);
-  i=(i+scenes.length)%scenes.length;
-  const prev=scenes[cur];
-  cur=i;
-  const sc=scenes[i];
-  sc.classList.remove('on'); void sc.offsetWidth;
-  sc.style.zIndex=++z; sc.classList.add('on');
-  if(prev&&prev!==sc) setTimeout(()=>prev.classList.remove('on'),800);
-  const ms=+sc.dataset.ms;
-  bars.forEach((b,j)=>{b.style.transition='none';b.style.width=j<i?'100%':'0'});
-  void prog.offsetWidth;
-  bars[i].style.transition=`width ${ms}ms linear`; bars[i].style.width='100%';
-  startT=performance.now(); elapsed=0;
-  timer=setTimeout(()=>play(i+1),ms);
-}
-window.play=play;
-play(0);
-
-stage.addEventListener('click',()=>play(0));
-addEventListener('keydown',e=>{
-  if(e.key==='h'||e.key==='H')document.body.classList.toggle('clean');
-  if(e.key==='ArrowRight')play(cur+1);
-  if(e.key==='ArrowLeft')play(cur-1);
-  if(e.key===' '){e.preventDefault();
-    paused=!paused;
-    document.getAnimations().forEach(a=>paused?a.pause():a.play());
-    if(paused){clearTimeout(timer);elapsed=performance.now()-startT}
-    else timer=setTimeout(()=>play(cur+1),+scenes[cur].dataset.ms-elapsed);
+/* ---------- target builders ---------- */
+const off=document.createElement('canvas');off.width=W;off.height=H;const ox=off.getContext('2d',{willReadFrequently:true});
+function textPts(parts){            // parts: [{lines,size,y,lh,step}]
+  const out=[];
+  for(const p of parts){
+    ox.clearRect(0,0,W,H);ox.fillStyle='#fff';ox.textAlign='center';ox.textBaseline='middle';
+    let fs=p.size||460;ox.font=`${fs}px Bangers`;
+    const mw=Math.max(...p.lines.map(l=>ox.measureText(l).width));
+    fs*=Math.min(1,(W-150)/mw,(p.maxH||960)/(p.lines.length*fs*(p.lh||.86)));ox.font=`${fs}px Bangers`;
+    const lh=fs*(p.lh||.86),y0=(p.y??CY)-(p.lines.length-1)*lh/2;
+    p.lines.forEach((l,i)=>ox.fillText(l,CX,y0+i*lh));
+    const d=ox.getImageData(0,0,W,H).data,st=p.step||4;
+    for(let y=0;y<H;y+=st)for(let x=0;x<W;x+=st)
+      if(d[(y*W+x)*4+3]>128)out.push([x-CX+(rnd()-.5)*st,y-CY+(rnd()-.5)*st,(rnd()-.5)*60]);
   }
+  return shuffle(out).slice(0,14000);
+}
+const IMGCOL=[WHITE,HERO,ICE,BLUE,'#778191','#e20329'];
+const IMGRGB=IMGCOL.map(c=>[1,3,5].map(i=>parseInt(c.slice(i,i+2),16)));
+const loadImg=src=>new Promise(r=>{const im=new Image();im.onload=()=>r(im);im.src=src});
+function imagePts(im,scale,dy){            // pixel-sample an illustration into coloured particle targets
+  const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const x=c.getContext('2d',{willReadFrequently:true});
+  x.drawImage(im,0,0);const d=x.getImageData(0,0,c.width,c.height).data,bg=[d[16],d[17],d[18]],out=[];
+  for(let y=0;y<c.height;y+=2)for(let xx=0;xx<c.width;xx+=2){
+    const o=(y*c.width+xx)*4,r=d[o],g2=d[o+1],b=d[o+2];
+    if(d[o+3]<128||Math.abs(r-bg[0])+Math.abs(g2-bg[1])+Math.abs(b-bg[2])<60||r+g2+b<150)continue;   // skip background + dark linework
+    let best=0,bd=1e9;IMGRGB.forEach((q,k)=>{const e=(q[0]-r)**2+(q[1]-g2)**2+(q[2]-b)**2;if(e<bd){bd=e;best=k}});
+    out.push([(xx-c.width/2)*scale,(y-c.height/2)*scale+dy,(rnd()-.5)*40,best]);
+  }
+  return shuffle(out).slice(0,13000);
+}
+function vortex(){const o=[];for(let i=0;i<11000;i++){const arm=i%3,r=Math.sqrt(rnd())*520,a=r*.011+arm*2.094+(rnd()-.5)*.5;
+  o.push([Math.cos(a)*r,(rnd()-.5)*50+Math.sin(a)*r*.38,Math.sin(a)*r])}return o}
+function sphere(){const o=[],n=9000;for(let i=0;i<n;i++){const y=1-2*(i+.5)/n,r=Math.sqrt(1-y*y),a=i*2.39996;
+  o.push([Math.cos(a)*r*400,y*400,Math.sin(a)*r*400])}return o}
+function sheet(){const o=[];for(let i=0;i<11000;i++)o.push([(rnd()-.5)*1000,0,(rnd()-.5)*700]);return o}
+
+/* ---------- timeline (seconds) ---------- */
+const phases=[];let PH=[];
+async function build(){
+  const C=COPY;
+  const [a1,a3]=await Promise.all([loadImg('assets/spaceman-01.png'),loadImg('assets/spaceman-03.png')]);
+  PH=[
+    {pts:vortex(),    d:1.9,dm:.5, rot:.55},
+    {pts:textPts([{lines:C.name,size:520,lh:.84,y:CY-40}]),                          d:3.3,dm:.45},
+    {pts:imagePts(a1,1.9,-70),d:3.0,dm:.45,img:1},
+    {pts:textPts([{lines:C.role,size:520,lh:.86,y:CY-40}]),                          d:2.6,dm:.4},
+    ...C.words.map(w=>({pts:textPts([{lines:[w],size:520}]),                  d:1.3,dm:.22})),
+    {pts:sheet(),     d:1.4,dm:.35, wave:1},
+    {pts:textPts([{lines:C.closer,size:520,lh:.84,y:CY-40}]),                        d:3.2,dm:.45},
+    {pts:imagePts(a3,1.9,-70),d:2.8,dm:.45,img:1},
+    {pts:textPts([{lines:['ZHENZHEN','LIU'],size:420,lh:.84,y:CY-130,maxH:560},{lines:[C.signoff.sub],size:110,y:CY+300,step:3}]), d:3.2,dm:.45}
+  ];
+  let t=0;PH.forEach(p=>{p.t0=t;t+=p.d});PH.total=t;
+}
+
+/* ---------- particles ---------- */
+const px=new Float32Array(N),py=new Float32Array(N),pz=new Float32Array(N);
+const vx=new Float32Array(N),vy=new Float32Array(N),vz=new Float32Array(N);
+const tx=new Float32Array(N),ty=new Float32Array(N),tz=new Float32Array(N);
+const hx=new Float32Array(N),hy=new Float32Array(N),hz=new Float32Array(N);
+const kk=new Float32Array(N),dl=new Float32Array(N),sz=new Float32Array(N),has=new Uint8Array(N);
+const perm=new Uint32Array(N),ibin=new Uint8Array(N).fill(255);
+function init(){
+  const p=shuffle([...Array(N).keys()]);p.forEach((v,i)=>perm[i]=v);
+  for(let i=0;i<N;i++){
+    const gs=()=>Math.sqrt(-2*Math.log(rnd()+1e-9))*Math.cos(6.283*rnd());   // gaussian: soft halo, sparse edges
+    hx[i]=gs()*340;hy[i]=gs()*400;hz[i]=gs()*300;
+    px[i]=hx[i];py[i]=hy[i];pz[i]=hz[i];kk[i]=.022+rnd()*.04;sz[i]=1.8+rnd()*1.8;
+  }
+}
+const BUCKETS=[[0,.7,HERO],[.7,.82,WHITE],[.82,.92,ICE],[.92,1,BLUE]];
+
+let phase=-1,T=0,mx=-9999,my=-9999,sway=0;
+function setPhase(k){
+  phase=k;const ph=PH[k],pts=ph.pts;
+  for(let i=0;i<N;i++){
+    const j=perm[i];
+    if(j<pts.length){has[i]=1;tx[i]=pts[j][0];ty[i]=pts[j][1];tz[i]=pts[j][2];ibin[i]=pts[j][3]??255}else{has[i]=0;ibin[i]=255}
+    dl[i]=rnd()*ph.dm;
+  }
+}
+function step(){
+  const dt=1/60;T+=dt;
+  if(T>=PH.total)T-=PH.total;
+  let k=PH.length-1;while(PH[k].t0>T)k--;
+  if(k!==phase)setPhase(k);
+  const ph=PH[phase],ang=ph.rot?T*ph.rot:0,ca=Math.cos(ang),sa=Math.sin(ang),tilt=.32,ct=Math.cos(tilt),st=Math.sin(tilt);
+  const beat=1+.03*Math.pow(Math.max(0,Math.sin(T*6.9)),3),hang=T*.12,hc=Math.cos(hang),hs=Math.sin(hang);
+  sway=Math.sin(T*.5)*.16;
+  for(let i=0;i<N;i++){
+    let X=px[i],Y=py[i],Z=pz[i];
+    if(dl[i]>0){                                   // swirl phase between shapes
+      dl[i]-=dt;const r=Math.hypot(X,Y)+40;
+      vx[i]+=-Y/r*.9;vy[i]+=X/r*.9;vx[i]*=.985;vy[i]*=.985;vz[i]*=.97;
+    }else{
+      let a,b,c,kf=kk[i],damp=.9;
+      if(has[i]){
+        a=tx[i];b=ty[i];c=tz[i];
+        if(ph.rot){const x2=a*ca+c*sa,z2=-a*sa+c*ca;a=x2;b=b*ct-z2*st;c=b*0+ (ty[i]*st+z2*ct)}
+        if(ph.img){b+=Math.sin(T*1.7)*16;a+=Math.sin(T*1.1)*10}
+        else if(!ph.rot&&!ph.wave){a*=beat;b*=beat}
+        if(ph.wave){b=44*Math.sin(a*.013+T*2.4)+30*Math.cos(c*.017+T*1.5);}
+      }else{a=hx[i]*hc+hz[i]*hs;b=hy[i];c=-hx[i]*hs+hz[i]*hc;kf=.004;damp=.955}
+      vx[i]+=(a-X)*kf;vy[i]+=(b-Y)*kf;vz[i]+=(c-Z)*kf;
+      vx[i]*=damp;vy[i]*=damp;vz[i]*=damp;
+      if(has[i]&&!ph.rot&&!ph.wave&&!ph.img){vx[i]+=(rnd()-.5)*.09;vy[i]+=(rnd()-.5)*.09} // shimmer
+    }
+    // mouse push
+    const sc=F/(F+Z),sx=CX+X*sc,sy=CY+Y*sc,dx=sx-mx,dy=sy-my,d2=dx*dx+dy*dy;
+    if(d2<22500){const d=Math.sqrt(d2)+1,f=(1-d/150),f2=f*f*9;vx[i]+=dx/d*f2;vy[i]+=dy/d*f2;vz[i]+=(rnd()-.5)*f2}
+    px[i]=X+vx[i];py[i]=Y+vy[i];pz[i]=Z+vz[i];
+  }
+}
+
+/* ---------- drawing ---------- */
+function draw(){
+  g.globalCompositeOperation='source-over';
+  g.fillStyle='rgba(0,22,76,.24)';g.fillRect(0,0,W,H);
+  g.globalCompositeOperation='lighter';
+  const cs=Math.cos(sway),sn=Math.sin(sway);
+  const dot=i=>{
+    const X=px[i]*cs+pz[i]*sn,Z=-px[i]*sn+pz[i]*cs;
+    const sc=F/(F+Z);if(sc<=0||sc>3)return;
+    const dim=has[i]?1:.6,tw=(i%53===0&&Math.sin(T*6+i)>.85)?3:1,s=sz[i]*sc*tw*dim*(1+Math.min(Math.hypot(vx[i],vy[i])*.12,2));
+    g.fillRect(CX+X*sc-s/2,CY+py[i]*sc-s/2,s,s);
+  };
+  for(const [a,b,col] of BUCKETS){
+    g.fillStyle=col;g.globalAlpha=col===BLUE?.8:.9;
+    for(let i=(a*N)|0,e=(b*N)|0;i<e;i++)if(ibin[i]===255)dot(i);
+  }
+  g.globalAlpha=.95;
+  for(let c=0;c<IMGCOL.length;c++){g.fillStyle=IMGCOL[c];for(let i=0;i<N;i++)if(ibin[i]===c)dot(i)}
+  g.globalAlpha=1;g.globalCompositeOperation='source-over';hud();
+}
+function hud(){
+  g.textBaseline='alphabetic';
+  g.fillStyle=WHITE;g.font='700 24px system-ui,sans-serif';g.letterSpacing='5px';
+  g.textAlign='left';g.fillText(COPY.topLeft,64,80);
+  g.textAlign='right';g.fillText(COPY.topRight,W-64+5,80);g.letterSpacing='0px';
+  // marquee band (Lando-style ticker)
+  g.fillStyle='rgba(0,22,76,.94)';g.fillRect(0,1196,W,104);
+  g.fillStyle=HERO;g.fillRect(0,1196,W,4);
+  g.font='96px Bangers';g.textAlign='left';
+  const m=g.measureText(COPY.marquee).width,off=(T*170)%m;
+  g.fillStyle=WHITE;
+  for(let x=-off;x<W;x+=m)g.fillText(COPY.marquee,x,1280);
+  // progress
+  const p=T/PH.total;g.fillStyle='rgba(255,255,255,.22)';g.fillRect(64,1322,W-128,5);
+  g.fillStyle=HERO;g.fillRect(64,1322,(W-128)*p,5);
+}
+
+/* ---------- run ---------- */
+window.advance=n=>{for(let i=0;i<n;i++)step()};
+window.render=draw;
+window.total=()=>PH.total;
+window.restart=()=>{seed=20260101;T=0;phase=-1;init();setPhase(0)};
+let acc=0,last=0;
+function loop(ts){acc+=Math.min(ts-last,100);last=ts;while(acc>=1000/60){step();acc-=1000/60}draw();requestAnimationFrame(loop)}
+function pointer(e){const r=cv.getBoundingClientRect();mx=(e.clientX-r.left)*W/r.width;my=(e.clientY-r.top)*H/r.height}
+addEventListener('pointermove',pointer);addEventListener('pointerleave',()=>{mx=my=-9999});
+cv.addEventListener('click',()=>restart());
+addEventListener('keydown',e=>{if(e.key==='h'||e.key==='H')document.body.classList.toggle('clean')});
+document.fonts.load('100px Bangers').then(async()=>{
+  await build();init();setPhase(0);
+  if(!location.search.includes('manual')){requestAnimationFrame(ts=>{last=ts;loop(ts)})}
+  window.ready=true;
 });
 </script>
 </body>
