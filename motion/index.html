@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zhenzhen Liu – LinkedIn Motion</title>
+<style>
+  @font-face{font-family:'Bangers';src:url(assets/Bangers-Regular.ttf)}
+
+  /* Propel palette */
+  :root{
+    --navy:#00164c; --hero:#73deff; --ice:#c0f3ff; --blue:#0057a5; --white:#fff;
+    --display:'Bangers','Apercu',system-ui,sans-serif;
+    --body:'Apercu',ui-sans-serif,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:#0a0f1f;overflow:hidden;font-family:var(--body)}
+
+  /* 1080x1350 = LinkedIn 4:5 portrait. Centred + scaled to fit window by JS. */
+  #stage{position:absolute;left:50%;top:50%;width:1080px;height:1350px;background:var(--navy);overflow:hidden;
+    transform-origin:center;cursor:pointer}
+  .scene{position:absolute;inset:0;visibility:hidden;clip-path:inset(0 0 100% 0)}
+  .scene.on{visibility:visible;animation:reveal .65s cubic-bezier(.77,0,.18,1) forwards}
+  @keyframes reveal{to{clip-path:inset(0 0 0 0)}}
+  .hero{background:var(--hero);color:var(--navy)}
+  .ice{background:var(--ice);color:var(--navy)}
+  .dark{background:var(--navy);color:var(--white)}
+
+  .tag{position:absolute;font:700 26px var(--body);letter-spacing:.14em;text-transform:uppercase}
+  .tl{top:56px;left:64px}.tr{top:56px;right:64px}.bl{bottom:80px;left:64px}.br{bottom:80px;right:64px}
+  .fade{opacity:0}.on .fade{animation:fadeup .6s ease forwards;animation-delay:var(--d,0s)}
+  @keyframes fadeup{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+
+  /* ---------- scene 1: name slam ---------- */
+  .name{position:absolute;left:52px;top:140px;font:400 400px/.82 var(--display);text-transform:uppercase;letter-spacing:.01em}
+  .name div{overflow:hidden;white-space:nowrap;padding-right:20px}
+  .name span{display:inline-block;transform:translateY(115%) skewY(8deg)}
+  .on .name span{animation:slam .7s cubic-bezier(.2,1.2,.3,1) forwards;animation-delay:calc(.45s + var(--i)*.14s)}
+  @keyframes slam{60%{transform:translateY(-4%) skewY(0)}to{transform:translateY(0) skewY(0)}}
+  .name .out{-webkit-text-stroke:5px var(--navy);color:transparent}
+  .stamp{position:absolute;right:56px;bottom:150px;width:220px;height:220px;border-radius:50%;background:var(--navy);color:var(--hero);
+    display:grid;place-items:center;text-align:center;font:400 72px/1 var(--display);letter-spacing:.04em;transform:scale(0) rotate(-40deg)}
+  .on .stamp{animation:pop .6s cubic-bezier(.2,1.5,.4,1) 1.6s forwards}
+  .stamp b{display:block;font:700 20px var(--body);letter-spacing:.2em;margin-top:2px;color:var(--white)}
+  @keyframes pop{to{transform:scale(1) rotate(-12deg)}}
+  .logo{position:absolute;height:64px;left:64px;bottom:76px}
+
+  /* ---------- scene 2: marquee bands ---------- */
+  .band{position:absolute;left:-10%;width:130%;overflow:hidden;white-space:nowrap;padding:18px 0}
+  .band .track{display:inline-block;font:400 150px/1 var(--display);text-transform:uppercase;letter-spacing:.02em;animation:run 12s linear infinite}
+  .band.rev .track{animation-direction:reverse}
+  @keyframes run{to{transform:translateX(-50%)}}
+  .b1{top:170px;background:var(--hero);color:var(--navy);transform:rotate(-7deg) translateX(-120%)}
+  .b2{top:1000px;background:var(--white);color:var(--navy);transform:rotate(5deg) translateX(120%)}
+  .b3{top:1110px;color:transparent;-webkit-text-stroke:3px var(--hero);transform:rotate(5deg) translateX(-120%)}
+  .on .b1{animation:bandL .8s cubic-bezier(.2,.9,.2,1) .35s forwards}
+  .on .b2{animation:bandR .8s cubic-bezier(.2,.9,.2,1) .55s forwards}
+  .on .b3{animation:bandL5 .8s cubic-bezier(.2,.9,.2,1) .75s forwards}
+  @keyframes bandL{to{transform:rotate(-7deg) translateX(0)}}
+  @keyframes bandR{to{transform:rotate(5deg) translateX(0)}}
+  @keyframes bandL5{to{transform:rotate(5deg) translateX(0)}}
+  .statement{position:absolute;left:64px;right:64px;top:430px;font:400 160px/.95 var(--display);text-transform:uppercase;letter-spacing:.01em}
+  .statement .w{display:inline-block;opacity:0;transform:translateY(60px) scale(.9)}
+  .on .statement .w{animation:wordin .45s cubic-bezier(.2,1.3,.4,1) forwards;animation-delay:calc(.9s + var(--i)*.11s)}
+  @keyframes wordin{to{opacity:1;transform:none}}
+  .statement .hl{color:var(--hero)}
+
+  /* ---------- scene 3: cards ---------- */
+  .grid{position:absolute;left:64px;right:64px;top:190px;bottom:190px;display:grid;grid-template-columns:1fr 1fr;gap:28px}
+  .card{background:var(--navy);color:var(--hero);border-radius:4px;padding:36px;display:flex;flex-direction:column;justify-content:space-between;
+    transform:scale(0) rotate(calc(var(--r)*3))}
+  .card:nth-child(2),.card:nth-child(3){background:var(--white);color:var(--navy)}
+  .card:nth-child(3){background:var(--hero)}
+  .on .card{animation:cardpop .6s cubic-bezier(.2,1.4,.4,1) forwards;animation-delay:calc(.45s + var(--i)*.16s)}
+  @keyframes cardpop{to{transform:scale(1) rotate(var(--r))}}
+  .card .n{font:700 28px var(--body);letter-spacing:.14em;opacity:.8}
+  .card h3{font:400 140px/.9 var(--display);text-transform:uppercase;letter-spacing:.01em}
+  .card p{font:500 32px/1.15 var(--body);margin-top:6px}
+
+  /* ---------- scene 4: outro ---------- */
+  .big{position:absolute;left:0;right:0;top:90px;text-align:center;font:400 270px/.86 var(--display);text-transform:uppercase;letter-spacing:.01em}
+  .big div{overflow:hidden;padding:0 10px}
+  .big span{display:inline-block;transform:translateY(115%)}
+  .big .h span{color:var(--hero)}
+  .on .big span{animation:slam .7s cubic-bezier(.2,1.2,.3,1) forwards;animation-delay:calc(.8s + var(--i)*.15s)}
+  .astro{position:absolute;left:50%;top:590px;width:420px;height:420px;margin-left:-210px;opacity:0}
+  .on .astro{animation:astro 1s cubic-bezier(.2,.9,.2,1) 1.2s forwards, bob 4s ease-in-out 2.2s infinite}
+  @keyframes astro{from{opacity:0;transform:translateY(60px) rotate(-8deg)}to{opacity:1;transform:none}}
+  @keyframes bob{50%{transform:translateY(-14px) rotate(2deg)}}
+  .who{position:absolute;left:0;right:0;top:1015px;text-align:center}
+  .who h4{font:400 84px/1 var(--display);text-transform:uppercase;letter-spacing:.03em}
+  .who p{font:700 26px var(--body);letter-spacing:.16em;text-transform:uppercase;margin-top:10px;color:var(--hero)}
+  .cta{position:absolute;left:50%;bottom:76px;transform:translateX(-50%);background:var(--hero);color:var(--navy);padding:18px 38px;border-radius:2px;
+    font:700 26px var(--body);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+  .on .cta.fade{animation-name:fadeupc}
+  @keyframes fadeupc{from{opacity:0;transform:translate(-50%,24px)}to{opacity:1;transform:translate(-50%,0)}}
+
+  /* ---------- chrome ---------- */
+  #progress{position:absolute;left:64px;right:64px;bottom:40px;display:flex;gap:10px;z-index:99;mix-blend-mode:difference}
+  #progress i{flex:1;height:6px;background:rgba(255,255,255,.28);border-radius:3px;overflow:hidden}
+  #progress i b{display:block;height:100%;width:0;background:#fff}
+  #hint{position:fixed;left:16px;bottom:12px;font:500 13px var(--body);color:#778191;z-index:10;transition:opacity .3s}
+  body.clean #hint{opacity:0}
+  @media (prefers-reduced-motion:reduce){ .band .track{animation-duration:40s} }
+</style>
+</head>
+<body>
+<div id="hint">click = replay · space = pause · ←/→ = scenes · H = hide this hint (for recording)</div>
+
+<div id="stage">
+
+  <!-- 1 · NAME -->
+  <section class="scene hero" data-ms="3600">
+    <div class="tag tl fade" style="--d:.2s" data-k="tl1"></div>
+    <div class="tag tr fade" style="--d:.3s" data-k="tr1"></div>
+    <div class="name">
+      <div><span style="--i:0" data-k="n1"></span></div>
+      <div><span style="--i:1" data-k="n2"></span></div>
+      <div><span class="out" style="--i:2" data-k="n3"></span></div>
+    </div>
+    <div class="stamp"><div><span data-k="stamp1"></span><b data-k="stamp2"></b></div></div>
+    <img class="logo fade" style="--d:1.9s" src="assets/logo-dark-blue-tight.png" alt="Propel Ventures">
+  </section>
+
+  <!-- 2 · BANDS + STATEMENT -->
+  <section class="scene dark" data-ms="3800">
+    <div class="band b1"><div class="track" data-k="band1" data-repeat="2"></div></div>
+    <div class="statement" data-k="statement"></div>
+    <div class="band b2 rev"><div class="track" data-k="band2" data-repeat="2"></div></div>
+    <div class="band b3"><div class="track" data-k="band3" data-repeat="2"></div></div>
+  </section>
+
+  <!-- 3 · CARDS -->
+  <section class="scene ice" data-ms="3800">
+    <div class="tag tl" data-k="tl3"></div>
+    <div class="tag tr" data-k="tr3"></div>
+    <div class="grid" data-k="cards"></div>
+  </section>
+
+  <!-- 4 · OUTRO -->
+  <section class="scene dark" data-ms="4400">
+    <div class="big">
+      <div><span style="--i:0" data-k="o1"></span></div>
+      <div class="h"><span style="--i:1" data-k="o2"></span></div>
+    </div>
+    <img class="astro" src="assets/spaceman-03.png" alt="">
+    <div class="who fade" style="--d:1.7s"><h4 data-k="fullname"></h4><p data-k="role"></p></div>
+    <div class="cta fade" style="--d:2.1s" data-k="cta"></div>
+  </section>
+
+  <div id="progress"></div>
+</div>
+
+<script>
+/* ================= EDIT YOUR COPY HERE ================= */
+const COPY = {
+  tl1:"AI Enablement", tr1:"Melbourne · 2026",
+  n1:"Zhen", n2:"Zhen", n3:"Liu",
+  stamp1:"AI", stamp2:"ENABLER",
+  band1:"AI Enablement ✦ Prompt ✦ Build ✦ Ship ✦ Teach ✦ ",
+  band2:"Zhenzhen Liu ✦ Propel Ventures ✦ ",
+  band3:"Learn it ✦ Use it ✦ Share it ✦ ",
+  statement:[["I",0],["help",0],["teams",1],["work",0],["with",0],["AI.",1]],  // [word, highlight?]
+  tl3:"How I work", tr3:"4 moves",
+  cards:[
+    ["01","Prompt","Say it clearly."],
+    ["02","Build","Make it real."],
+    ["03","Ship","Put it live."],
+    ["04","Teach","Bring the team."]
+  ],
+  o1:"Let's", o2:"Build.",
+  fullname:"Zhenzhen Liu", role:"AI Enablement · Propel Ventures",
+  cta:"Follow for more →"
+};
+/* ======================================================== */
+
+const $=(s,r=document)=>[...r.querySelectorAll(s)];
+$('[data-k]').forEach(el=>{
+  const k=el.dataset.k, v=COPY[k]; if(v==null) return;
+  if(k==='statement'){
+    el.innerHTML=v.map(([w,h],i)=>`<span class="w ${h?'hl':''}" style="--i:${i}">${w}</span>`).join(' ');
+  }else if(k==='cards'){
+    el.innerHTML=v.map(([n,h,p],i)=>{
+      const r=[-3,2.5,2,-2.5][i];
+      return `<div class="card" style="--i:${i};--r:${r}deg"><div class="n">${n}</div><div><h3>${h}</h3><p>${p}</p></div></div>`;
+    }).join('');
+  }else el.textContent=el.dataset.repeat?v.repeat(+el.dataset.repeat*2):v;
+});
+
+const stage=document.getElementById('stage');
+function fit(){const s=Math.min(innerWidth/1080,innerHeight/1350);stage.style.transform=`translate(-50%,-50%) scale(${s})`}
+addEventListener('resize',fit);fit();
+
+const scenes=$('.scene'), prog=document.getElementById('progress');
+scenes.forEach(()=>prog.insertAdjacentHTML('beforeend','<i><b></b></i>'));
+const bars=$('b',prog);
+
+let cur=-1,timer,z=1,paused=false,startT=0,elapsed=0;
+function play(i){
+  clearTimeout(timer);
+  i=(i+scenes.length)%scenes.length;
+  const prev=scenes[cur];
+  cur=i;
+  const sc=scenes[i];
+  sc.classList.remove('on'); void sc.offsetWidth;
+  sc.style.zIndex=++z; sc.classList.add('on');
+  if(prev&&prev!==sc) setTimeout(()=>prev.classList.remove('on'),800);
+  const ms=+sc.dataset.ms;
+  bars.forEach((b,j)=>{b.style.transition='none';b.style.width=j<i?'100%':'0'});
+  void prog.offsetWidth;
+  bars[i].style.transition=`width ${ms}ms linear`; bars[i].style.width='100%';
+  startT=performance.now(); elapsed=0;
+  timer=setTimeout(()=>play(i+1),ms);
+}
+window.play=play;
+play(0);
+
+stage.addEventListener('click',()=>play(0));
+addEventListener('keydown',e=>{
+  if(e.key==='h'||e.key==='H')document.body.classList.toggle('clean');
+  if(e.key==='ArrowRight')play(cur+1);
+  if(e.key==='ArrowLeft')play(cur-1);
+  if(e.key===' '){e.preventDefault();
+    paused=!paused;
+    document.getAnimations().forEach(a=>paused?a.pause():a.play());
+    if(paused){clearTimeout(timer);elapsed=performance.now()-startT}
+    else timer=setTimeout(()=>play(cur+1),+scenes[cur].dataset.ms-elapsed);
+  }
+});
+</script>
+</body>
+</html>
