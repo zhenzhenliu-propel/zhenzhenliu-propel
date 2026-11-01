@@ -19,7 +19,7 @@
 <div align="center">
 
 <a href="https://zhenzhenliu-propel.github.io/zhenzhenliu-propel/motion/">
-<img src="assets/motion.gif" width="320" alt="Interactive site preview: a particle spark that morphs as you scroll, big type reveals and a Claude Code terminal replay" />
+<img src="assets/motion.gif" width="320" alt="Interactive site preview: a blue particle spark that morphs as you scroll, big type reveals and a Claude Code terminal intro" />
 </a>
 
 <sub>▶ <a href="https://zhenzhenliu-propel.github.io/zhenzhenliu-propel/motion/">Open the live version</a></sub>
